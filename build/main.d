@@ -1,5 +1,5 @@
 main.o: \
- C:/devkitPro/examples/switch/graphics/sdl2/sdl2-demo/source/main.c \
+ C:/devkitPro/examples/switch/graphics/sdl2/AgeOfApocalypse/AgeOfApocalypse/source/main.c \
  C:/devkitPro/portlibs/switch/include/SDL2/SDL.h \
  C:/devkitPro/portlibs/switch/include/SDL2/SDL_main.h \
  C:/devkitPro/portlibs/switch/include/SDL2/SDL_stdinc.h \
