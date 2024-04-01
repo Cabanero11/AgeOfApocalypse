@@ -45,7 +45,7 @@ INCLUDES	:=	include
 ROMFS		:=	romfs
 
 APP_TITLE   := Age of Apocalypse
-APP_AUTHOR  := Antonio Ruiz Guirao y Pablo José Peral Tamarit 
+APP_AUTHOR  := Antonio Ruiz Guirao y Pablo Jose Peral Tamarit
 ICON		:= icon.png
 
 #---------------------------------------------------------------------------------
@@ -64,7 +64,7 @@ ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-specs=$(DEVKITPRO)/libnx/switch.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
 
 LIBS	:=	`$(PREFIX)pkg-config --libs sdl2 SDL2_mixer SDL2_image SDL2_ttf` \
-			-lnx
+			-lnx -lbox2d
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
