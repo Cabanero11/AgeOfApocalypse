@@ -69,13 +69,16 @@ void inicializar_enemigo(Enemigo& enemigo, SDL_Renderer* renderer, const char* f
     }
 
     // Posicionar el enemigo a la derecha del jugador
-    enemigo.pos.x = x + 15;
-    enemigo.pos.y = y;
-    enemigo.pos.w = enemigo.texture->w * 2;
-    enemigo.pos.h = enemigo.texture->h * 2;
+    enemigo.pos = { x + 15, y, 16, 16 };
 
     enemigo.coord = { (double)x, (double)y };
 }
+
+// Función para dibujar un enemigo en elrenderer
+void dibujar_enemigo(SDL_Renderer* renderer, const Enemigo& enemigo) {
+    SDL_RenderCopy(renderer, enemigo.texture, NULL, &enemigo.pos);
+}
+
 
 void mover_enemigo_hacia_jugador(Enemigo& enemigo, const SDL_Rect* jugador, double distancia_maxima) {
     // Calculamos el vector dirección
@@ -102,10 +105,6 @@ void mover_enemigo_hacia_jugador(Enemigo& enemigo, const SDL_Rect* jugador, doub
     enemigo.pos.y = (int)enemigo.coord.y;
 }
 
-// Función para dibujar un enemigo en elrenderer
-void dibujar_enemigo(SDL_Renderer* renderer, const Enemigo& enemigo) {
-    SDL_RenderCopy(renderer, enemigo.texture, NULL, &enemigo.pos);
-}
 
 
 
@@ -320,6 +319,13 @@ int main(int argc, char** argv)
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
+        // DIBUJAR A PARTIR DE AQUI
+
+
+
+
+
+
         // Dibujar el enemigo (goblin)
         dibujar_enemigo(renderer, goblin);
 
@@ -345,19 +351,6 @@ int main(int argc, char** argv)
         
         if (tiempo_tex)
             SDL_RenderCopy(renderer, tiempo_tex, NULL, &tiempo_rect);
-            
-        
-
-
-
-
-       
-        
-
-
-       
-
-
 
 
         // Dibujar el texto en la parte inferior de la pantalla
