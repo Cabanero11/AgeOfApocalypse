@@ -42,8 +42,8 @@
 00000000000048a0 000000000000000c t _GLOBAL__sub_I_b2_math.cpp
 00000000000048b0 t __do_global_dtors_aux
 0000000000004900 t frame_dummy
-0000000000004930 000000000000007c T inicializar_enemigo(Enemigo&, SDL_Renderer*, char const*, int, int)
-00000000000049b0 0000000000000054 T mover_enemigo_hacia_jugador(Enemigo&, SDL_Rect const*, double)
+0000000000004930 000000000000007c T InicializarEnemigo(Enemigo&, SDL_Renderer*, char const*, int, int)
+00000000000049b0 0000000000000054 T MoverEnemigoHaciaElJugador(Enemigo&, SDL_Rect const*, double)
 0000000000004a10 0000000000000064 T render_text(SDL_Renderer*, char const*, _TTF_Font*, SDL_Color, SDL_Rect*)
 0000000000004a80 000000000000007c t _Mix_remove_all_effects
 0000000000004b00 0000000000000044 t _Mix_channel_done_playing

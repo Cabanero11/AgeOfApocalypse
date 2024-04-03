@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "c:/devkitPro/examples/switch/graphics/sdl2/AgeOfApocalypse/AgeOfApocalypse",
-      "program": "c:/devkitPro/examples/switch/graphics/sdl2/AgeOfApocalypse/AgeOfApocalypse/build/Debug/outDebug",
+      "cwd": "c:/devkitPro/examples/switch/graphics/sdl2/AgeOfApocalypse/AgeOfApocalypse/source",
+      "program": "c:/devkitPro/examples/switch/graphics/sdl2/AgeOfApocalypse/AgeOfApocalypse/source/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

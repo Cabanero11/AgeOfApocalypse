@@ -61,7 +61,7 @@ struct Enemigo {
 };
 
 // Función para inicializar un enemigo
-void inicializar_enemigo(Enemigo& enemigo, SDL_Renderer* renderer, const char* filename, int x, int y) {
+void InicializarEnemigo(Enemigo& enemigo, SDL_Renderer* renderer, const char* filename, int x, int y) {
     enemigo.texture = IMG_LoadTexture(renderer, filename);
     if (!enemigo.texture) {
         printf("Error cargando la textura del enemigo: %s\n", IMG_GetError());
@@ -75,12 +75,12 @@ void inicializar_enemigo(Enemigo& enemigo, SDL_Renderer* renderer, const char* f
 }
 
 // Función para dibujar un enemigo en elrenderer
-void dibujar_enemigo(SDL_Renderer* renderer, const Enemigo& enemigo) {
+void DibujarEnemigo(SDL_Renderer* renderer, const Enemigo& enemigo) {
     SDL_RenderCopy(renderer, enemigo.texture, NULL, &enemigo.pos);
 }
 
 
-void mover_enemigo_hacia_jugador(Enemigo& enemigo, const SDL_Rect* jugador, double distancia_maxima) {
+void MoverEnemigoHaciaElJugador(Enemigo& enemigo, const SDL_Rect* jugador, double distancia_maxima) {
     // Calculamos el vector dirección
     double direccion_x = jugador->x - enemigo.pos.x;
     double direccion_y = jugador->y - enemigo.pos.y;
@@ -197,11 +197,11 @@ int main(int argc, char** argv)
 
 
 
-    SDL_Surface* pumpkin_surface = IMG_Load("data/pumpkin_dude/pumpkin_dude_idle_anim_f0.png");
+    SDL_Surface* jugadorSurface = IMG_Load("data/pumpkin_dude/pumpkin_dude_idle_anim_f0.png");
     // Multiplica las dimensiones originales del sprite por un factor de escala (por ejemplo, 2 para duplicar el tamaño)
-    SDL_Texture* pumpkin_tex = SDL_CreateTextureFromSurface(renderer, pumpkin_surface);
-    SDL_Rect pumpkin_pos = { SCREEN_W / 2 - pumpkin_surface->w, SCREEN_H / 2 - pumpkin_surface->h, pumpkin_surface->w * 2, pumpkin_surface->h * 2 };
-    SDL_FreeSurface(pumpkin_surface);
+    SDL_Texture* jugadorTextura = SDL_CreateTextureFromSurface(renderer, jugadorSurface);
+    SDL_Rect jugadorPosicion = { SCREEN_W / 2 - jugadorSurface->w, SCREEN_H / 2 - jugadorSurface->h, jugadorSurface->w * 2, jugadorSurface->h * 2 };
+    SDL_FreeSurface(jugadorSurface);
 
     /**
     // TIEMPO
@@ -250,7 +250,7 @@ int main(int argc, char** argv)
     
 
     Enemigo goblin;
-    inicializar_enemigo(goblin, renderer, "data/goblin/goblin_idle_anim_f0.png", pumpkin_pos.x + 15, pumpkin_pos.y);
+    InicializarEnemigo(goblin, renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 15, jugadorPosicion.y);
 
 
 
@@ -303,23 +303,25 @@ int main(int argc, char** argv)
 
         // Actualizar la posición del personaje en función del estado de los botones    
         if (move_up)
-            pumpkin_pos.y -= velocidadMovimiento;
+            jugadorPosicion.y -= velocidadMovimiento;
         if (move_down)
-            pumpkin_pos.y += velocidadMovimiento;
+            jugadorPosicion.y += velocidadMovimiento;
         if (move_left)
-            pumpkin_pos.x -= velocidadMovimiento;
+            jugadorPosicion.x -= velocidadMovimiento;
         if (move_right)
-            pumpkin_pos.x += velocidadMovimiento;
+            jugadorPosicion.x += velocidadMovimiento;
 
         // Mover el enemigo hacia el jugador (pumpkin)
-        mover_enemigo_hacia_jugador(goblin, &pumpkin_pos, 5.0f);
+        MoverEnemigoHaciaElJugador(goblin, &jugadorPosicion, 5.0f);
 
 
         // LIMPIAR LA PANTALLA
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
+        // ########################
         // DIBUJAR A PARTIR DE AQUI
+        // ########################
 
 
 
@@ -327,10 +329,10 @@ int main(int argc, char** argv)
 
 
         // Dibujar el enemigo (goblin)
-        dibujar_enemigo(renderer, goblin);
+        DibujarEnemigo(renderer, goblin);
 
         // Dibujar el personaje
-        SDL_RenderCopy(renderer, pumpkin_tex, NULL, &pumpkin_pos);
+        SDL_RenderCopy(renderer, jugadorTextura, NULL, &jugadorPosicion);
 
 
         // Decrementar los segundos
@@ -364,7 +366,7 @@ int main(int argc, char** argv)
     } // FIN BUCLE MAIN
 
 
-    SDL_DestroyTexture(pumpkin_tex);
+    SDL_DestroyTexture(jugadorTextura);
     SDL_DestroyTexture(helloworld_tex);
     SDL_DestroyTexture(tiempo_tex);
     SDL_DestroyTexture(goblin.texture); // Destruir la textura del goblin para liberar la memoria
