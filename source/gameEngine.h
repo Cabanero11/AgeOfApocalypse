@@ -333,6 +333,23 @@ private:
 	void CargarTextura(const char* ruta);
 };
 
+// fondo2.cpp modificacion de fondo.cpp sin Camara creo
+
+struct Fondo2 
+{
+	SDL_Texture* textura;
+	SDL_Rect posicion;
+
+	Fondo2(float x, float y, const char* ruta);
+	
+	void Renderizar();
+	void Destruir();
+
+private:
+	void CargarTextura(const char* ruta);	
+
+};
+
 struct Mapa
 {
 	int fondoR;

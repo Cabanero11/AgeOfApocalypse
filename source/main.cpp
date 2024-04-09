@@ -6,20 +6,19 @@
 #include <cmath>
 #include <unistd.h>
 
+// Incluye los encabezados más comunes de la biblioteca estándar de C
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-#define SCREEN_W 1280
-#define SCREEN_H 720
+// EN TEORIA AÑADIR COSAS AQUI SI NUEVAS CLASES
+#include "gameEngine.h"
 
-#define JOY_A     0
-#define JOY_B     1
-#define JOY_X     2
-#define JOY_Y     3
-#define JOY_PLUS  10
-#define JOY_MINUS 11
-#define JOY_LEFT  12
-#define JOY_UP    13
-#define JOY_RIGHT 14
-#define JOY_DOWN  15
+
+//Your own raw RGB888 1280x720 image at "data/image.bin" is required.
+//#include "image_bin.h"
+
+// LAS CONSTANTES SE DEFINEN EN constantes.h
 
 // Variables de movimiento
 bool move_up = false;
@@ -144,13 +143,16 @@ SDL_Texture* render_time(SDL_Renderer* renderer, TTF_Font* font, const char* tim
 
 
 
+// CARGAR FONDO
+
+Fondo2 fondo(0, 0, "data/fondo.png");
 
 
 
-
-
-
-
+// SINO EL COMPILADOR NO ENCUENTRA ESTAS VARIABLES
+// QUE SE USAN CON "extern SDL_Renderer* renderer;""
+SDL_Renderer* renderer;
+SDL_Window* window;
 
 
 // MAIN
@@ -160,25 +162,9 @@ int main(int argc, char** argv)
     romfsInit();
     chdir("romfs:/");
 
-/**
-	// Iniciamos lo relacionado con el mundo fisico
-	b2Vec2 gravity(0.0, 0.0f);
-	b2World world(gravity);
+    // Obtiene la ventana predeterminada
+    NWindow* win = nwindowGetDefault();
 
-    // Codigo de Mario 3
-    DetectorDeColisiones detector;
-    Camara camara(0.0f, 0.0f);
-    Mapa mundo1(RUTA_MAPA_MUNDO_1, &camara, &world);
-    world.SetContactListener(&detector);
-
-
-
-    Jugador jugador(&camara, &world);
-    camara.AsignarJugador(&jugador);
-
-    mundo1.Renderizar();
-
-    */
 
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK);
     IMG_Init(IMG_INIT_PNG);
@@ -186,8 +172,8 @@ int main(int argc, char** argv)
     Mix_Init(MIX_INIT_OGG);
     Mix_OpenAudio(48000, AUDIO_S16, 2, 4096);
 
-    SDL_Window* window = SDL_CreateWindow("Age of Apocalypse", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_W, SCREEN_H, SDL_WINDOW_SHOWN);
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+    window = SDL_CreateWindow("Age of Apocalypse", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_W, SCREEN_H, SDL_WINDOW_SHOWN);
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
 
     TTF_Font* font = TTF_OpenFont("data/LeroyLetteringLightBeta01.ttf", 36);
     SDL_Rect helloworld_rect = { 0, SCREEN_H - 36, 0, 0 };
@@ -203,15 +189,6 @@ int main(int argc, char** argv)
     SDL_Rect jugadorPosicion = { SCREEN_W / 2 - jugadorSurface->w, SCREEN_H / 2 - jugadorSurface->h, jugadorSurface->w * 2, jugadorSurface->h * 2 };
     SDL_FreeSurface(jugadorSurface);
 
-    /**
-    // TIEMPO
-    SDL_Rect tiempo_rect = { SCREEN_W / 2, 36, 0, 0 };
-    SDL_Color red = { 255, 0, 0, 0 };
-    char tiempo[10]; // Variable para almacenar la cadena de tiempo formateada
-    sprintf(tiempo, "%02d:%02d", minutes, seconds); // Formatear la cadena de tiempo inicial
-    SDL_Texture* tiempo_tex = render_text(renderer, tiempo, font, red, &tiempo_rect);
-    TTF_CloseFont(font);
-    */
 
     // Para el tiempo
     int minutes = 9; // Variable para los minutos
@@ -234,6 +211,7 @@ int main(int argc, char** argv)
     // MUSICA
     Mix_Music* music = NULL;
     Mix_Chunk* sound[4] = { NULL }; 
+    u64 snd;
 
     music = Mix_LoadMUS("data/mewing.ogg");
     sound[0] = Mix_LoadWAV("data/pop1.wav");
@@ -245,15 +223,33 @@ int main(int argc, char** argv)
         Mix_PlayMusic(music, -1);
 
     
+
+    // CONTROLES
     SDL_JoystickEventState(SDL_ENABLE);
     SDL_JoystickOpen(0);
     
 
+
+    // ENEMIGO GOBLIN
     Enemigo goblin;
     InicializarEnemigo(goblin, renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 15, jugadorPosicion.y);
 
 
+    // IMAGEN DE FONDO
+    
 
+    // Crea un framebuffer lineal de doble búfer
+    Framebuffer fb;
+    framebufferCreate(&fb, win, SCREEN_W, SCREEN_H, PIXEL_FORMAT_RGBA_8888, 2);
+    framebufferMakeLinear(&fb);
+
+    /** INTENDO DE CARGAR imagen.bin
+    // Carga la imagen desde los datos binarios
+    u8* imageptr = (u8*)imagen_bin;
+    const u32 ancho_imagen = 1280; 
+    const u32 alto_imagen = 720; 
+    u32 contador = 0;
+    */
 
     // BUCLE
     int exit_requested = 0;
@@ -319,6 +315,43 @@ int main(int argc, char** argv)
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
+        
+        // CARGAR IMAGEN FONDO
+        fondo.Renderizar();
+
+
+
+
+/** INTENDO DE CARGAR imagen.bin
+        // Obtiene el framebuffer
+        u32 stride;
+        u32* framebuf = (u32*)framebufferBegin(&fb, &stride);
+
+        if (contador != 60)
+            contador ++;
+        else
+            contador = 0;
+
+        // Cada píxel es de 4 bytes debido a RGBA8888.
+        for (u32 y = 0; y < SCREEN_H; y ++)
+        {
+            for (u32 x = 0; x < SCREEN_W; x ++)
+            {
+                u32 pos = y * stride / sizeof(u32) + x;
+                if (y >= alto_imagen || x >= ancho_imagen) continue;
+                u32 pos_imagen = y * ancho_imagen + x;
+                framebuf[pos] = RGBA8_MAXALPHA(imageptr[pos_imagen*3], imageptr[pos_imagen*3+1], imageptr[pos_imagen*3+2]);
+                framebuf[pos] = 0x01010101 * contador * 4;
+                //Set framebuf to different shades of grey.
+            }
+        }
+
+        // Termina de renderizar, por lo que se finaliza el fotograma aquí.
+        framebufferEnd(&fb);
+*/
+
+
+
         // ########################
         // DIBUJAR A PARTIR DE AQUI
         // ########################
@@ -371,9 +404,18 @@ int main(int argc, char** argv)
     SDL_DestroyTexture(tiempo_tex);
     SDL_DestroyTexture(goblin.texture); // Destruir la textura del goblin para liberar la memoria
 
-    //mundo1.Destruir();
+    fondo.Destruir();
 
+
+    // Parar sonidos y liberar data 
+    Mix_HaltChannel(-1);
     Mix_FreeMusic(music);
+    for (snd = 0; snd < 4; snd++)
+        if (sound[snd])
+            Mix_FreeChunk(sound[snd]);
+
+    // CERRAR EL Buffer de Fondo
+    framebufferClose(&fb);
 
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
