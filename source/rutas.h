@@ -149,4 +149,22 @@
 #define RUTA_NUMERO_BLANCO_GRANDE_8              		"data/interfaz/numerosBlancosGrandes/8.png"
 #define RUTA_NUMERO_BLANCO_GRANDE_9              		"data/interfaz/numerosBlancosGrandes/9.png"
 
+// RUTAS NUEVAS
+
+#define RUTA_IDLE_0                               "data/pumpkin_dude/pumpkin_dude_idle_anim_f0.png"
+#define RUTA_IDLE_1                               "data/pumpkin_dude/pumpkin_dude_idle_anim_f1.png"
+#define RUTA_IDLE_2                               "data/pumpkin_dude/pumpkin_dude_idle_anim_f2.png"
+#define RUTA_IDLE_3                               "data/pumpkin_dude/pumpkin_dude_idle_anim_f3.png"
+
+
+#define RUTA_RUN_0                               "data/pumpkin_dude/pumpkin_dude_run_anim_f0.png"
+#define RUTA_RUN_1                               "data/pumpkin_dude/pumpkin_dude_run_anim_f1.png"
+#define RUTA_RUN_2                               "data/pumpkin_dude/pumpkin_dude_run_anim_f2.png"
+#define RUTA_RUN_3                               "data/pumpkin_dude/pumpkin_dude_run_anim_f3.png"
+
+
+
+
+
+
 #endif

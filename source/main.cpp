@@ -131,21 +131,60 @@ SDL_Texture* render_time(SDL_Renderer* renderer, TTF_Font* font, const char* tim
 
 
 
+// VARIABLES DE ANIMACION
+
+const char* idleJugador[] = {
+    "data/pumpkin_dude/pumpkin_dude_idle_anim_f0.png",
+    "data/pumpkin_dude/pumpkin_dude_idle_anim_f1.png",
+    "data/pumpkin_dude/pumpkin_dude_idle_anim_f2.png",
+    "data/pumpkin_dude/pumpkin_dude_idle_anim_f3.png"
+};
+
+
+const char* runJugador[] = {
+    "data/pumpkin_dude/pumpkin_dude_run_anim_f0.png",
+    "data/pumpkin_dude/pumpkin_dude_run_anim_f1.png",
+    "data/pumpkin_dude/pumpkin_dude_run_anim_f2.png",
+    "data/pumpkin_dude/pumpkin_dude_run_anim_f3.png"
+};
 
 
 
 
+// MAQUINA ESTADOS JUGADOR
+
+enum EstadoJugador {
+    IDLE,
+    RUN,
+    MUERTE
+};
+
+
+
+// VARIABLES ANIMACION
+
+// Declarar la variable animacionJugador antes de su uso
+Animacion animacionJugador;
+
+const char* animacionJugadorFrames[4] = {
+    "data/pumpkin_dude/pumpkin_dude_idle_anim_f0.png",
+    "data/pumpkin_dude/pumpkin_dude_idle_anim_f1.png",
+    "data/pumpkin_dude/pumpkin_dude_idle_anim_f2.png",
+    "data/pumpkin_dude/pumpkin_dude_idle_anim_f3.png"
+};
 
 
 
 
+EstadoJugador estadoJugador = IDLE;
+
+// Render the animation
+void renderizarAnimacionJugador() {
+    animacionJugador.Renderizar();
+    SDL_RenderPresent(renderer);
+}
 
 
-
-
-// CARGAR FONDO
-
-Fondo2 fondo(0, 0, "data/fondo.png");
 
 
 
@@ -153,6 +192,7 @@ Fondo2 fondo(0, 0, "data/fondo.png");
 // QUE SE USAN CON "extern SDL_Renderer* renderer;""
 SDL_Renderer* renderer;
 SDL_Window* window;
+Interfaz* interfaz;
 
 
 // MAIN
@@ -185,8 +225,8 @@ int main(int argc, char** argv)
 
     SDL_Surface* jugadorSurface = IMG_Load("data/pumpkin_dude/pumpkin_dude_idle_anim_f0.png");
     // Multiplica las dimensiones originales del sprite por un factor de escala (por ejemplo, 2 para duplicar el tamaño)
-    SDL_Texture* jugadorTextura = SDL_CreateTextureFromSurface(renderer, jugadorSurface);
-    SDL_Rect jugadorPosicion = { SCREEN_W / 2 - jugadorSurface->w, SCREEN_H / 2 - jugadorSurface->h, jugadorSurface->w * 2, jugadorSurface->h * 2 };
+    SDL_Texture* jugadorTextura = SDL_CreateTextureFromSurface(renderer, jugadorSurface);               //jugadorSurface->w * 2 Para x2 tamaño
+    SDL_Rect jugadorPosicion = { SCREEN_W / 2 - jugadorSurface->w, SCREEN_H / 2 - jugadorSurface->h, jugadorSurface->w,  jugadorSurface->h };
     SDL_FreeSurface(jugadorSurface);
 
 
@@ -250,7 +290,7 @@ int main(int argc, char** argv)
     const u32 alto_imagen = 720; 
     u32 contador = 0;
     */
-
+    
     // BUCLE
     int exit_requested = 0;
 
@@ -297,6 +337,29 @@ int main(int argc, char** argv)
             }
         } // FIN BUCLE EVENTOS
 
+
+        // Actualizar la posición del personaje en función del estado de los botones
+        switch (estadoJugador) {
+            case IDLE:
+                // Lógica para el estado idle
+                break;
+            case RUN:
+                if (move_up)
+                    jugadorPosicion.y -= velocidadMovimiento;
+                if (move_down)
+                    jugadorPosicion.y += velocidadMovimiento;
+                if (move_left)
+                    jugadorPosicion.x -= velocidadMovimiento;
+                if (move_right)
+                    jugadorPosicion.x += velocidadMovimiento;
+                // Lógica para el estado run
+                break;
+            case MUERTE:
+                // Lógica para el estado muerte
+                break;
+        }
+
+        /**
         // Actualizar la posición del personaje en función del estado de los botones    
         if (move_up)
             jugadorPosicion.y -= velocidadMovimiento;
@@ -306,6 +369,7 @@ int main(int argc, char** argv)
             jugadorPosicion.x -= velocidadMovimiento;
         if (move_right)
             jugadorPosicion.x += velocidadMovimiento;
+        */
 
         // Mover el enemigo hacia el jugador (pumpkin)
         MoverEnemigoHaciaElJugador(goblin, &jugadorPosicion, 5.0f);
@@ -317,8 +381,10 @@ int main(int argc, char** argv)
 
         
         // CARGAR IMAGEN FONDO
-        fondo.Renderizar();
+      
 
+        // CREAR ANIMACIO
+        animacionJugador.CrearAnimacion(4, 60, animacionJugadorFrames);
 
 
 
@@ -356,8 +422,10 @@ int main(int argc, char** argv)
         // DIBUJAR A PARTIR DE AQUI
         // ########################
 
+        estadoJugador = RUN;
+        renderizarAnimacionJugador();
 
-
+        
 
 
 
@@ -404,7 +472,8 @@ int main(int argc, char** argv)
     SDL_DestroyTexture(tiempo_tex);
     SDL_DestroyTexture(goblin.texture); // Destruir la textura del goblin para liberar la memoria
 
-    fondo.Destruir();
+    //animacionJugador.Destruir();
+
 
 
     // Parar sonidos y liberar data 

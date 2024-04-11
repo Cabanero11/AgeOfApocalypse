@@ -37,8 +37,8 @@ void Jugador::IniciarCuerpoFisico(b2World* world)
 	b2BodyDef bodyDef;
 	bodyDef.type = b2_dynamicBody; // Indicamos que es dinamico
 	
-	// Colocamos al jugador en la posición indicada teniendo en cuenta que SDL_Rect tiene como origen la esquina
-	// superior izquierda, y la posicion del cuerpo físico debe tener el origen en el centro del objeto. Ademas,
+	// Colocamos al jugador en la posiciï¿½n indicada teniendo en cuenta que SDL_Rect tiene como origen la esquina
+	// superior izquierda, y la posicion del cuerpo fï¿½sico debe tener el origen en el centro del objeto. Ademas,
 	// lo escalamos multiplicando por 0.01
 	bodyDef.position.Set((posicion.x + posicion.w / 2.0f) * 0.01f, (posicion.y + posicion.h / 2.0f) * 0.01f);
 	
