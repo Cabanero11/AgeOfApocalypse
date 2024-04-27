@@ -291,6 +291,10 @@ int main(int argc, char** argv)
 	Mapa2 mundo1(RUTA_MAPA_MUNDO_1, &camara2, &world);
 	Jugador2 mario(&camara2, &world);
 	camara2.AsignarJugador2(&mario);
+
+     // ENEMIGO GOBLIN
+    Enemigo goblin;
+    InicializarEnemigo(goblin, renderer, "data/goblin/goblin_idle_anim_f0.png", SCREEN_W / 2 , SCREEN_H / 2);
 	
     while (!exit_requested && appletMainLoop()) 
 	{
@@ -328,6 +332,14 @@ int main(int argc, char** argv)
 		interfaz->Renderizar();
 		mario.Renderizar2(x, y);
         //mario.Renderizar2(y);
+
+       
+
+        // Mover el enemigo hacia el jugador (pumpkin)
+        MoverEnemigoHaciaElJugador(goblin, &mario.posicion, 5.0f);
+
+        // Dibujar el enemigo (goblin)
+        DibujarEnemigo(renderer, goblin);
 
 		// Actualizamos el mundo fisico
     	world.Step(1.0f / 60.0f, 6, 2);
@@ -559,6 +571,7 @@ int main(int argc, char** argv)
     // Liberamos todo lo necesario
     mundo1.Destruir();
 	interfaz->Destruir();
+    SDL_DestroyTexture(goblin.texture); // Destruir la textura del goblin para liberar la memoria
     IMG_Quit();
     SDL_Quit();
     romfsExit();

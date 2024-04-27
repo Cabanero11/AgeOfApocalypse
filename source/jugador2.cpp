@@ -99,7 +99,7 @@ Jugador2::Jugador2(Camara2* camara2, b2World* world)
 	tamanyo = 0;
 	direccion = 0;
 	velocidad = 0;
-	int velocidad_movimiento = 10;
+	float velocidad_movimiento = 10.0f;
 	posicion.x = 20;
 	posicion.y = 20;
 	posicion.w = 16;
@@ -210,14 +210,14 @@ Jugador2::Jugador2(Camara2* camara2, b2World* world)
 	void Jugador2::MoverArriba() {
 		// Actualizamos la posición del jugador hacia arriba
 		// Se puede ajustar la velocidad según sea necesario
-		posicion.y += velocidad_movimiento;
+		posicion.y += 0.2f;
 	}
 
 	// Método para mover el jugador hacia abajo
 	void Jugador2::MoverAbajo() {
 		// Actualizamos la posición del jugador hacia abajo
 		// Se puede ajustar la velocidad según sea necesario
-		posicion.y -= velocidad_movimiento;
+		posicion.y -= 0.2f;
 	}
 
 

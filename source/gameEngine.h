@@ -163,7 +163,7 @@ struct Jugador2
 	const float maxVelocidad = 2.0f;
 	const float accel = 0.05f;
 	float velocidad;
-	int velocidad_movimiento;
+	float velocidad_movimiento;
 	Camara2* camara2;
 	b2Body* cuerpoFisico;
 	SDL_Texture* agachado[4];
