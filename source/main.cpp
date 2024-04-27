@@ -130,6 +130,60 @@ SDL_Texture* render_time(SDL_Renderer* renderer, TTF_Font* font, const char* tim
 
 
 
+/// PROYECTILES
+
+
+
+// Estructura para representar un proyectil
+struct Proyectil {
+    SDL_Texture* texture;   // Textura del proyectil
+    SDL_Rect pos;           // Posición del proyectil
+    Coordenada coord;       // Coordenadas del proyectil
+    double velocidad;       // Velocidad del proyectil
+    double direccion_x;     // Componente x de la dirección del proyectil
+    double direccion_y;     // Componente y de la dirección del proyectil
+};
+
+
+/ Función para inicializar un proyectil
+void InicializarProyectil(Proyectil& proyectil, SDL_Renderer* renderer, const char* filename, int x, int y) {
+    proyectil.texture = IMG_LoadTexture(renderer, filename);
+    if (!proyectil.texture) {
+        printf("Error cargando la textura del proyectil: %s\n", IMG_GetError());
+        exit(EXIT_FAILURE);
+    }
+
+    // Posicionar el proyectil en la misma posición que el jugador
+    proyectil.pos = { x, y, 16, 16 };
+
+    proyectil.coord = { (double)x, (double)y };
+
+    // Definir una velocidad para el proyectil
+    proyectil.velocidad = 5.0;
+
+    // Generar una dirección aleatoria para el proyectil
+    double angulo = rand() % 360; // Ángulo en grados
+    proyectil.direccion_x = cos(angulo * M_PI / 180); // Componente x de la dirección
+    proyectil.direccion_y = sin(angulo * M_PI / 180); // Componente y de la dirección
+}
+
+// Función para mover un proyectil
+void MoverProyectil(Proyectil& proyectil) {
+    // Mover el proyectil en su dirección actual
+    proyectil.coord.x += proyectil.velocidad * proyectil.direccion_x;
+    proyectil.coord.y += proyectil.velocidad * proyectil.direccion_y;
+
+    // Actualizar la posición del proyectil
+    proyectil.pos.x = (int)proyectil.coord.x;
+    proyectil.pos.y = (int)proyectil.coord.y;
+}
+
+// Función para dibujar un proyectil en el renderer
+void DibujarProyectil(SDL_Renderer* renderer, const Proyectil& proyectil) {
+    SDL_RenderCopy(renderer, proyectil.texture, NULL, &proyectil.pos);
+}
+
+
 
 // VARIABLES DE ANIMACION
 
@@ -283,13 +337,7 @@ int main(int argc, char** argv)
     framebufferCreate(&fb, win, SCREEN_W, SCREEN_H, PIXEL_FORMAT_RGBA_8888, 2);
     framebufferMakeLinear(&fb);
 
-    /** INTENDO DE CARGAR imagen.bin
-    // Carga la imagen desde los datos binarios
-    u8* imageptr = (u8*)imagen_bin;
-    const u32 ancho_imagen = 1280; 
-    const u32 alto_imagen = 720; 
-    u32 contador = 0;
-    */
+
     
     // BUCLE
     int exit_requested = 0;
@@ -359,17 +407,6 @@ int main(int argc, char** argv)
                 break;
         }
 
-        /**
-        // Actualizar la posición del personaje en función del estado de los botones    
-        if (move_up)
-            jugadorPosicion.y -= velocidadMovimiento;
-        if (move_down)
-            jugadorPosicion.y += velocidadMovimiento;
-        if (move_left)
-            jugadorPosicion.x -= velocidadMovimiento;
-        if (move_right)
-            jugadorPosicion.x += velocidadMovimiento;
-        */
 
         // Mover el enemigo hacia el jugador (pumpkin)
         MoverEnemigoHaciaElJugador(goblin, &jugadorPosicion, 5.0f);
@@ -385,36 +422,6 @@ int main(int argc, char** argv)
 
         // CREAR ANIMACIO
         animacionJugador.CrearAnimacion(4, 60, animacionJugadorFrames);
-
-
-
-/** INTENDO DE CARGAR imagen.bin
-        // Obtiene el framebuffer
-        u32 stride;
-        u32* framebuf = (u32*)framebufferBegin(&fb, &stride);
-
-        if (contador != 60)
-            contador ++;
-        else
-            contador = 0;
-
-        // Cada píxel es de 4 bytes debido a RGBA8888.
-        for (u32 y = 0; y < SCREEN_H; y ++)
-        {
-            for (u32 x = 0; x < SCREEN_W; x ++)
-            {
-                u32 pos = y * stride / sizeof(u32) + x;
-                if (y >= alto_imagen || x >= ancho_imagen) continue;
-                u32 pos_imagen = y * ancho_imagen + x;
-                framebuf[pos] = RGBA8_MAXALPHA(imageptr[pos_imagen*3], imageptr[pos_imagen*3+1], imageptr[pos_imagen*3+2]);
-                framebuf[pos] = 0x01010101 * contador * 4;
-                //Set framebuf to different shades of grey.
-            }
-        }
-
-        // Termina de renderizar, por lo que se finaliza el fotograma aquí.
-        framebufferEnd(&fb);
-*/
 
 
 
