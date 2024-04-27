@@ -1,0 +1,14 @@
+ancho
+alto
+#capaSuelos
+#capaTuberias
+#capaBloques
+#capaFondo
+#capaItems
+nCapasPlataformas
+#capaPlataformas1
+#capaPlataformas2
+...
+#capaPlataformasN
+colorFondo
+Fondo.png

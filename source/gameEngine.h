@@ -5,7 +5,7 @@
 #include "constantes.h"
 
 #include <time.h>
-#include <chrono>
+//#include <chrono>
 #include <unistd.h>
 #include <math.h>
 #include <fstream>
@@ -25,6 +25,7 @@
 using namespace std;
 
 struct Jugador;
+struct Jugador2;
 struct Interfaz;
 struct MonedaYoshi;
 struct Moneda;
@@ -66,6 +67,20 @@ struct Camara
 	void Actualizar();
 };
 
+struct Camara2
+{
+	const float velocidad = 0.8f;
+	int x;
+	int y;
+	float xReal;
+	float yReal;
+	Jugador2* jugador2;
+	
+	Camara2(float x, float y);
+	void AsignarJugador2(Jugador2* jugador);
+	void Actualizar2();
+};
+
 struct Animacion
 {
 	SDL_Texture* textura;
@@ -102,6 +117,7 @@ struct Jugador
 	const float maxVelocidad = 2.0f;
 	const float accel = 0.05f;
 	float velocidad;
+	int velocidad_movimiento;
 	Camara* camara;
 	b2Body* cuerpoFisico;
 	SDL_Texture* agachado[4];
@@ -126,6 +142,56 @@ struct Jugador
 private:
 	SDL_Texture* CargarTextura(const char* ruta);
 	void IniciarCuerpoFisico(b2World* world);
+};
+
+struct Jugador2
+{	
+	enum Estado
+	{
+		Agachado,
+		CambioDir,
+		Cayendo,
+		Corriendo,
+		Quieto,
+		QuietoArriba,
+		Saltando,
+		SaltoCorriendo,
+		Sprint,
+		Muerte	
+	};
+	
+	const float maxVelocidad = 2.0f;
+	const float accel = 0.05f;
+	float velocidad;
+	int velocidad_movimiento;
+	Camara2* camara2;
+	b2Body* cuerpoFisico;
+	SDL_Texture* agachado[4];
+	SDL_Texture* cambioDir[4];
+	SDL_Texture* cayendo[4];
+	Animacion corriendo[4];
+	SDL_Texture* quieto[4];
+	SDL_Texture* quietoArriba[4];
+	SDL_Texture* saltando[4];
+	SDL_Texture* saltoCorriendo[4];
+	Animacion sprint[4];
+	Animacion growUp[4];
+	Animacion muerte;
+	SDL_Rect posicion;
+	int tamanyo;
+	int direccion;
+	Estado estado;
+	
+	Jugador2(Camara2* camara2, b2World* world);
+	void Movimiento2(int x, int y);
+	void Renderizar2(int x, int y);
+	void MoverIzquierda();
+	void MoverDerecha();
+	void MoverArriba();
+	void MoverAbajo();
+private:
+	SDL_Texture* CargarTextura2(const char* ruta);
+	void IniciarCuerpoFisico2(b2World* world);
 };
 
 struct Suelo
@@ -335,20 +401,19 @@ private:
 
 // fondo2.cpp modificacion de fondo.cpp sin Camara creo
 
-struct Fondo2 
+struct Fondo2
 {
+	Camara2* camara2;
 	SDL_Texture* textura;
 	SDL_Rect posicion;
-
-	Fondo2(float x, float y, const char* ruta);
 	
+	Fondo2(int tipo, float x, float y, Camara2* camara2);
 	void Renderizar();
 	void Destruir();
-
 private:
-	void CargarTextura(const char* ruta);	
-
+	void CargarTextura(const char* ruta);
 };
+
 
 struct Mapa
 {
@@ -372,6 +437,22 @@ struct Mapa
 	vector<HongoVida*> hongosVida;
 	
 	Mapa(const char* ruta, Camara* camara, b2World* world);
+	void Renderizar();
+	void Destruir();
+};
+
+struct Mapa2
+{
+	int fondoR;
+	int fondoG;
+	int fondoB;
+	int ancho;
+	int alto;
+
+	vector<Fondo2*> fondos;
+
+	
+	Mapa2(const char* ruta, Camara2* camara2, b2World* world);
 	void Renderizar();
 	void Destruir();
 };
