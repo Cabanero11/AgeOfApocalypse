@@ -7,6 +7,7 @@ extern SDL_Window* window;
 int numGroundChecks2 = 0;
 const int ticksJumpDelay = 10;
 int actJumpTicks2 = 0;
+float impulsoVertical = 10.0f;
 
 /*
 Metodo para cargar una textura y devolverla como resultado
@@ -99,7 +100,7 @@ Jugador2::Jugador2(Camara2* camara2, b2World* world)
 	tamanyo = 0;
 	direccion = 0;
 	velocidad = 0;
-	float velocidad_movimiento = 10.0f;
+	float velocidad_movimiento = 6.0f;
 	posicion.x = 20;
 	posicion.y = 20;
 	posicion.w = 16;
@@ -194,30 +195,24 @@ Jugador2::Jugador2(Camara2* camara2, b2World* world)
 
 	// Método para mover el jugador hacia la izquierda
 	void Jugador2::MoverIzquierda() {
-		// Actualizamos la posición del jugador hacia la izquierda
-		// Se puede ajustar la velocidad según sea necesario
-		posicion.x -= velocidad_movimiento;
+		cuerpoFisico->SetLinearVelocity(b2Vec2(-velocidad_movimiento, cuerpoFisico->GetLinearVelocity().x));
 	}
 
 	// Método para mover el jugador hacia la derecha
 	void Jugador2::MoverDerecha() {
-		// Actualizamos la posición del jugador hacia la derecha
-		// Se puede ajustar la velocidad según sea necesario
-		posicion.x += velocidad_movimiento;
+		cuerpoFisico->SetLinearVelocity(b2Vec2(velocidad_movimiento, cuerpoFisico->GetLinearVelocity().x));
 	}
 
 	// Método para mover el jugador hacia arriba
 	void Jugador2::MoverArriba() {
-		// Actualizamos la posición del jugador hacia arriba
-		// Se puede ajustar la velocidad según sea necesario
-		posicion.y += 0.2f;
+		//posicion.y += 0.2f;
+		cuerpoFisico->ApplyForceToCenter(b2Vec2(0.0f, impulsoVertical), true);
 	}
 
 	// Método para mover el jugador hacia abajo
 	void Jugador2::MoverAbajo() {
-		// Actualizamos la posición del jugador hacia abajo
-		// Se puede ajustar la velocidad según sea necesario
-		posicion.y -= 0.2f;
+		//posicion.y -= 0.2f;
+		cuerpoFisico->ApplyForceToCenter(b2Vec2(0.0f, impulsoVertical), true);
 	}
 
 

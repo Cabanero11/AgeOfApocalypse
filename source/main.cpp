@@ -268,14 +268,14 @@ int main(int argc, char** argv)
 	
 	int exit_requested = 0;
 
-	int joystick_deadzone = 8000;
-	int joystick_speed = 1;
-	
+    int joystick_deadzone = 8000;
+	//int joystick_speed = 1;
+
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_TIMER);
 	IMG_Init(IMG_INIT_PNG);
 	
 	// Creamos la ventana y el renderer
-	window = SDL_CreateWindow("Test Mario", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_W, SCREEN_H, SDL_WINDOW_SHOWN);
+	window = SDL_CreateWindow("Test Jugador", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_W, SCREEN_H, SDL_WINDOW_SHOWN);
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
 	
 	SDL_Joystick* joystick = SDL_JoystickOpen(0);
@@ -289,12 +289,26 @@ int main(int argc, char** argv)
 	interfaz = new Interfaz();
 	Camara2 camara2(0.0f, 0.0f);
 	Mapa2 mundo1(RUTA_MAPA_MUNDO_1, &camara2, &world);
-	Jugador2 mario(&camara2, &world);
-	camara2.AsignarJugador2(&mario);
+	Jugador2 jugador(&camara2, &world);
+	camara2.AsignarJugador2(&jugador);
 
      // ENEMIGO GOBLIN
     Enemigo goblin;
     InicializarEnemigo(goblin, renderer, "data/goblin/goblin_idle_anim_f0.png", SCREEN_W / 2 , SCREEN_H / 2);
+
+    // MUSICA
+    Mix_Music* music = NULL;
+    Mix_Chunk* sound[4] = { NULL }; 
+    u64 snd;
+
+    music = Mix_LoadMUS("data/background.ogg");
+    sound[0] = Mix_LoadWAV("data/pop1.wav");
+    sound[1] = Mix_LoadWAV("data/pop2.wav");
+    sound[2] = Mix_LoadWAV("data/pop3.wav");
+    sound[3] = Mix_LoadWAV("data/pop4.wav");
+
+    if (music)
+        Mix_PlayMusic(music, -1);
 	
     while (!exit_requested && appletMainLoop()) 
 	{
@@ -310,18 +324,17 @@ int main(int argc, char** argv)
         SDL_JoystickEventState(SDL_ENABLE);
         SDL_JoystickOpen(0);
 
-        
-   	 	// Actualizar la posición de la imagen en función de la entrada del joystick
+
+        // Actualizar la posición de la imagen en función de la entrada del joystick
     	if (x < -joystick_deadzone)
-            mario.MoverIzquierda();
+            jugador.MoverIzquierda();
         else if (x > joystick_deadzone)
-            mario.MoverDerecha();
+            jugador.MoverDerecha();
 
         if (y < -joystick_deadzone)
-            mario.MoverAbajo();
+            jugador.MoverAbajo();
         else if (y > joystick_deadzone)
-            mario.MoverArriba();
-
+            jugador.MoverArriba();
 
     		
     	//camara.x += 6 * x;
@@ -330,13 +343,13 @@ int main(int argc, char** argv)
 		// Renderizamos todo lo necesario
 		mundo1.Renderizar();
 		interfaz->Renderizar();
-		mario.Renderizar2(x, y);
-        //mario.Renderizar2(y);
+		jugador.Renderizar2(x, y);
+        //jugador.Renderizar2(y);
 
        
 
         // Mover el enemigo hacia el jugador (pumpkin)
-        MoverEnemigoHaciaElJugador(goblin, &mario.posicion, 5.0f);
+        MoverEnemigoHaciaElJugador(goblin, &jugador.posicion, 5.0f);
 
         // Dibujar el enemigo (goblin)
         DibujarEnemigo(renderer, goblin);
@@ -347,15 +360,34 @@ int main(int argc, char** argv)
     	// Renderizamos en pantalla
     	SDL_RenderPresent(renderer);
 
-        
+   
+    } // FIN BUCLE MAIN
 
-    // MARIO
+    // Liberamos todo lo necesario
 
-    // ###################################################################
+    // Parar sonidos y liberar data 
+    Mix_HaltChannel(-1);
+    Mix_FreeMusic(music);
+    for (snd = 0; snd < 4; snd++)
+        if (sound[snd])
+            Mix_FreeChunk(sound[snd]);
 
-    // CODIGO ANTIGUO
+    mundo1.Destruir();
+	interfaz->Destruir();
+    SDL_DestroyTexture(goblin.texture); // Destruir la textura del goblin para liberar la memoria
+    IMG_Quit();
+    SDL_Quit();
+    romfsExit();
+    return 0;
 
-    /**
+
+
+    /*
+     // CODIGO DEL MAIN ANTIGUO
+     // CODIGO DEL MAIN ANTIGUO
+     // CODIGO DEL MAIN ANTIGUO
+
+    
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK);
     IMG_Init(IMG_INIT_PNG);
     TTF_Init();
@@ -566,19 +598,11 @@ int main(int argc, char** argv)
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
         */
-    } // FIN BUCLE MAIN
-
-    // Liberamos todo lo necesario
-    mundo1.Destruir();
-	interfaz->Destruir();
-    SDL_DestroyTexture(goblin.texture); // Destruir la textura del goblin para liberar la memoria
-    IMG_Quit();
-    SDL_Quit();
-    romfsExit();
-    return 0;
+    
 
     /**
      
+     // CODIGO DESPUES DEL MAIN
     
     SDL_DestroyTexture(jugadorTextura);
     SDL_DestroyTexture(helloworld_tex);

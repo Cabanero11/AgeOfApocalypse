@@ -114,8 +114,8 @@ struct Jugador
 		Muerte	
 	};
 	
-	const float maxVelocidad = 2.0f;
-	const float accel = 0.05f;
+	const float maxVelocidad = 10.0f;
+	const float accel = 0.05f;	
 	float velocidad;
 	int velocidad_movimiento;
 	Camara* camara;
