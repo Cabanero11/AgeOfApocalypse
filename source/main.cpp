@@ -29,7 +29,7 @@ float velocidadMovimiento = 5.0f;
 #define CPU_TICKS_PER_SECOND 19200000
 
 // En lugar de definir los minutos como 60, los definiremos como 10 para 10 minutos.
-int minutes = 10;
+int minutes = 5;
 int seconds = 0;
 
 // Cambiar la duración total a 10 minutos en segundos
@@ -379,6 +379,7 @@ int main(int argc, char** argv)
         else if (x > joystick_deadzone)
             jugadorPosicion.x += velocidadMovimiento;
 
+
         if (y < -joystick_deadzone)
             jugadorPosicion.y -= velocidadMovimiento;
         else if (y > joystick_deadzone)
@@ -391,13 +392,13 @@ int main(int argc, char** argv)
                 // Lógica para el estado idle
                 break;
             case RUN:
-                if (move_up)
+                if (move_up && jugadorPosicion.y >= 42)
                     jugadorPosicion.y -= velocidadMovimiento;
-                if (move_down)
+                if (move_down && jugadorPosicion.y <= 640)
                     jugadorPosicion.y += velocidadMovimiento;
-                if (move_left)
+                if (move_left && jugadorPosicion.x >= 80)
                     jugadorPosicion.x -= velocidadMovimiento;
-                if (move_right)
+                if (move_right && jugadorPosicion.x <= 1180)
                     jugadorPosicion.x += velocidadMovimiento;
                 // Lógica para el estado run
                 break;
