@@ -101,8 +101,8 @@ Jugador2::Jugador2(Camara2* camara2, b2World* world)
 	direccion = 0;
 	velocidad = 0;
 	float velocidad_movimiento = 6.0f;
-	posicion.x = 20;
-	posicion.y = 20;
+	posicion.x = 0;
+	posicion.y = 0;
 	posicion.w = 16;
 	posicion.h = 24;
 	
@@ -230,8 +230,8 @@ Metodo para dibujar al jugador y actualizar su maquina de estados
 void Jugador2::Renderizar2(int x, int y)
 {
 	// Calculamos la posicion donde esta cuerpo fisico (desaplicando la escala multiplicando por 100)
-	posicion.x = floor(cuerpoFisico->GetPosition().x * 100.0f) - posicion.w / 2.0f;
-	posicion.y = floor(cuerpoFisico->GetPosition().y * 100.0f) - posicion.h / 2.0f;
+	posicion.x = floor(cuerpoFisico->GetPosition().x) - posicion.w / 2.0f;
+	posicion.y = floor(cuerpoFisico->GetPosition().y) - posicion.h / 2.0f;
 	
 	// Actualizamos la camara
 	camara2->Actualizar2();
@@ -263,6 +263,7 @@ void Jugador2::Renderizar2(int x, int y)
 				estado = Corriendo;
 			}
 			velocidad = x;
+
 			cuerpoFisico->SetLinearVelocity(b2Vec2(velocidad, cuerpoFisico->GetLinearVelocity().y));
 			break;
 
@@ -282,32 +283,7 @@ void Jugador2::Renderizar2(int x, int y)
 				estado = CambioDir;
 				direccion = (direccion + 1) % 2;
 			}
-			if (x == 0)
-			{
-				if (velocidad > 0)
-				{
-					velocidad -= accel;
-					if (velocidad <= 0) 
-					{
-						velocidad = 0;
-						estado = Quieto;
-					}
-				}
-				else if (velocidad < 0)
-				{
-					velocidad += accel;
-					if (velocidad >= 0)
-					{
-						velocidad = 0;
-						estado = Quieto;
-					}
-				}
-			}
-			if (abs(velocidad) >= maxVelocidad)
-			{
-				if (velocidad > 0) velocidad = maxVelocidad;
-				if (velocidad < 0) velocidad = -maxVelocidad;
-			}
+			
 			cuerpoFisico->SetLinearVelocity(b2Vec2(velocidad, cuerpoFisico->GetLinearVelocity().y));
 			break;
 

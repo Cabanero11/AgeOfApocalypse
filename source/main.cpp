@@ -83,6 +83,8 @@ void MoverEnemigoHaciaElJugador(Enemigo& enemigo, const SDL_Rect* jugador, doubl
     // Calculamos el vector dirección
     double direccion_x = jugador->x - enemigo.pos.x;
     double direccion_y = jugador->y - enemigo.pos.y;
+    //posicion.x = floor(cuerpoFisico->GetPosition().x) - posicion.w / 2.0f;
+	//posicion.y = floor(cuerpoFisico->GetPosition().y) - posicion.h / 2.0f;
 
     // Normalizamos el vector dirección
     double longitud = sqrt(pow(direccion_x, 2) + pow(direccion_y, 2));
@@ -252,7 +254,10 @@ Interfaz* interfaz;
 // MAIN
 int main(int argc, char** argv) 
 {
-
+    /** MARIO
+     
+    
+    */
     // Obtiene la ventana predeterminada
     //NWindow* win = nwindowGetDefault();
     
@@ -288,7 +293,7 @@ int main(int argc, char** argv)
 	// Creamos los elementos del nivel
 	interfaz = new Interfaz();
 	Camara2 camara2(0.0f, 0.0f);
-	Mapa2 mundo1(RUTA_MAPA_MUNDO_1, &camara2, &world);
+	//Mapa2 mundo1(RUTA_MAPA_MUNDO_2, &camara2, &world);
 	Jugador2 jugador(&camara2, &world);
 	camara2.AsignarJugador2(&jugador);
 
@@ -312,7 +317,7 @@ int main(int argc, char** argv)
 	
     while (!exit_requested && appletMainLoop()) 
 	{
-        SDL_SetRenderDrawColor(renderer, mundo1.fondoR, mundo1.fondoG, mundo1.fondoB, 0xFF);
+        //SDL_SetRenderDrawColor(renderer, mundo1.fondoR, mundo1.fondoG, mundo1.fondoB, 0xFF);
         SDL_RenderClear(renderer);
     
     	// Manejar la entrada del joystick
@@ -341,7 +346,7 @@ int main(int argc, char** argv)
     	//camara.y += 6 * y;
 	
 		// Renderizamos todo lo necesario
-		mundo1.Renderizar();
+		//mundo1.Renderizar();
 		interfaz->Renderizar();
 		jugador.Renderizar2(x, y);
         //jugador.Renderizar2(y);
@@ -349,7 +354,7 @@ int main(int argc, char** argv)
        
 
         // Mover el enemigo hacia el jugador (pumpkin)
-        MoverEnemigoHaciaElJugador(goblin, &jugador.posicion, 5.0f);
+        MoverEnemigoHaciaElJugador(goblin, &jugador.posicion, 0.1f);
 
         // Dibujar el enemigo (goblin)
         DibujarEnemigo(renderer, goblin);
@@ -372,7 +377,7 @@ int main(int argc, char** argv)
         if (sound[snd])
             Mix_FreeChunk(sound[snd]);
 
-    mundo1.Destruir();
+    //mundo1.Destruir();
 	interfaz->Destruir();
     SDL_DestroyTexture(goblin.texture); // Destruir la textura del goblin para liberar la memoria
     IMG_Quit();
