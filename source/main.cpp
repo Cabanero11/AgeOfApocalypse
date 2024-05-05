@@ -27,10 +27,17 @@ float velocidadMovimiento = 5.0f;
 
 // Para el tiempo
 #define CPU_TICKS_PER_SECOND 19200000
-#define DURATION_SECONDS 600 // 10 minutos en segundos
 
-int minutes = 60; // Variable para los minutos
-int seconds = 0;  // Variable para los segundos
+// En lugar de definir los minutos como 60, los definiremos como 10 para 10 minutos.
+int minutes = 10;
+int seconds = 0;
+
+// Cambiar la duración total a 10 minutos en segundos
+#define DURATION_SECONDS (10 * 60) // 10 minutos en segundos
+
+
+
+
 SDL_Rect tiempo_rect = { SCREEN_W / 2, 36, 0, 0 }; // Posición del texto del tiempo
 
 
@@ -239,10 +246,9 @@ int main(int argc, char** argv)
     SDL_Texture* backgroundTexture = IMG_LoadTexture(renderer, "data/background/Background.png");
     if (!backgroundTexture) {
         printf("Error cargando la textura de fondo: %s\n", IMG_GetError());
+    }
 
-}
-
-
+    
 
     SDL_Surface* jugadorSurface = IMG_Load("data/pumpkin_dude/pumpkin_dude_idle_anim_f0.png");
     // Multiplica las dimensiones originales del sprite por un factor de escala (por ejemplo, 2 para duplicar el tamaño)
@@ -393,23 +399,17 @@ int main(int argc, char** argv)
         // Dibujar el personaje
         SDL_RenderCopy(renderer, jugadorTextura, NULL, &jugadorPosicion);
 
+        // Ajustar el tiempo en función de los fotogramas por segundo
+        int frames_per_second = 60; // Asumiendo que el juego se ejecuta a 60 fotogramas por segundo
+        int frames_per_minute = frames_per_second * 60; // Fotogramas por minuto
+        int total_frames = minutes * frames_per_minute + seconds * frames_per_second;
 
-        // Decrementar los segundos
-        seconds--;
-
-        // Si los segundos llegan a cero, decrementar los minutos y resetear los segundos a 59
-        if (seconds < 0) 
-        {
-            seconds = 59;
-            minutes--;
-        } 
-        else if(minutes < 0)
-        {
-            SDL_Texture* helloworld_tex = render_text(renderer, "Se acabo el tiempo", font, white, &helloworld_rect);
-        }
-
+        // Dentro del bucle principal, calcular los minutos y segundos en función del número total de fotogramas
+        int current_minutes = total_frames / frames_per_minute;
+        int current_seconds = (total_frames % frames_per_minute) / frames_per_second;
+       
         // Actualizar el texto del tiempo
-        sprintf(tiempo, "%02d:%02d", minutes, seconds);
+        sprintf(tiempo, "%02d:%02d", current_minutes, current_seconds);
 
         // Renderizar el tiempo
         tiempo_tex = render_text(renderer, tiempo, font, red, &tiempo_rect);
