@@ -226,6 +226,11 @@ int main(int argc, char** argv)
     // Obtiene la ventana predeterminada
     NWindow* win = nwindowGetDefault();
 
+    // Ajustar el tiempo en función de los fotogramas por segundo
+    int frames_per_second = 60; // Asumiendo que el juego se ejecuta a 60 fotogramas por segundo
+    int frames_per_minute = frames_per_second * 60; // Fotogramas por minuto
+    int total_frames = minutes * frames_per_minute + seconds * frames_per_second;
+
 
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK);
     IMG_Init(IMG_INIT_PNG);
@@ -258,7 +263,7 @@ int main(int argc, char** argv)
 
 
     // Para el tiempo
-    int minutes = 9; // Variable para los minutos
+    int minutes = 0; // Variable para los minutos
     int seconds = 59;  // Variable para los segundos
     SDL_Rect tiempo_rect = { SCREEN_W / 2, 36, 0, 0 }; // Posición del texto del tiempo
 
@@ -399,14 +404,33 @@ int main(int argc, char** argv)
         // Dibujar el personaje
         SDL_RenderCopy(renderer, jugadorTextura, NULL, &jugadorPosicion);
 
-        // Ajustar el tiempo en función de los fotogramas por segundo
-        int frames_per_second = 60; // Asumiendo que el juego se ejecuta a 60 fotogramas por segundo
-        int frames_per_minute = frames_per_second * 60; // Fotogramas por minuto
-        int total_frames = minutes * frames_per_minute + seconds * frames_per_second;
+       
 
         // Dentro del bucle principal, calcular los minutos y segundos en función del número total de fotogramas
         int current_minutes = total_frames / frames_per_minute;
         int current_seconds = (total_frames % frames_per_minute) / frames_per_second;
+
+        // Actualización del tiempo
+        total_frames--; // Incrementar el número total de fotogramas
+
+        // Calcular los minutos y segundos actuales en función del número total de fotogramas
+        current_minutes = total_frames / frames_per_minute;
+        current_seconds = (total_frames % frames_per_minute) / frames_per_second;
+
+
+            // Si los segundos llegan a cero, decrementar los minutos y resetear los segundos a 59
+        if (current_seconds < 0) 
+        {
+            current_seconds = 59;
+            current_minutes--;
+        }
+
+         // Si los minutos llegan a cero y los segundos llegan a cero, detener el juego
+        if (current_minutes <= 0 && current_seconds <= 0) 
+        {
+            exit_requested = 1; // Salir del bucle
+            // Aquí puedes agregar cualquier lógica adicional que necesites al finalizar el tiempo
+        }
        
         // Actualizar el texto del tiempo
         sprintf(tiempo, "%02d:%02d", current_minutes, current_seconds);
@@ -424,7 +448,7 @@ int main(int argc, char** argv)
         
 
         SDL_RenderPresent(renderer);
-        SDL_Delay(16);
+        SDL_Delay(1000 / frames_per_second);
     } // FIN BUCLE MAIN
 
 
