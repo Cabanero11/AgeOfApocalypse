@@ -231,6 +231,8 @@ int main(int argc, char** argv)
     int frames_per_minute = frames_per_second * 60; // Fotogramas por minuto
     int total_frames = minutes * frames_per_minute + seconds * frames_per_second;
 
+    
+
 
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK);
     IMG_Init(IMG_INIT_PNG);
@@ -248,11 +250,24 @@ int main(int argc, char** argv)
     SDL_Texture* helloworld_tex = render_text(renderer, ":(", font, white, &helloworld_rect);
 
 
-    SDL_Texture* backgroundTexture = IMG_LoadTexture(renderer, "data/background/Background.png");
+        // BACKGROUND IMAGEN
+
+    SDL_Texture* backgroundTexture = IMG_LoadTexture(renderer, "data/background/Background2.png");
     if (!backgroundTexture) {
         printf("Error cargando la textura de fondo: %s\n", IMG_GetError());
     }
 
+    // JOYSTICK
+
+    SDL_Joystick* joystick = SDL_JoystickOpen(0);
+    if (!joystick) 
+	{
+        printf("Error: no se pudo abrir el joystick.\n");
+        return 1;
+    }
+
+    int joystick_deadzone = 8000;
+	int joystick_speed = 1;
     
 
     SDL_Surface* jugadorSurface = IMG_Load("data/pumpkin_dude/pumpkin_dude_idle_anim_f0.png");
@@ -276,7 +291,6 @@ int main(int argc, char** argv)
 
     // Renderizar el texto del tiempo en la pantalla
     SDL_Texture* tiempo_tex = render_text(renderer, tiempo, font, red, &tiempo_rect);
-
 
 
 
@@ -352,6 +366,23 @@ int main(int argc, char** argv)
                     Mix_PlayChannel(-1, sound[3], 0);
             }
         } // FIN BUCLE EVENTOS
+
+
+       // Manejar la entrada del joystick
+        SDL_JoystickUpdate();
+        int x = SDL_JoystickGetAxis(joystick, 0);
+        int y = SDL_JoystickGetAxis(joystick, 1);
+
+        // Actualizar la posición del jugador en función de la entrada del joystick
+        if (x < -joystick_deadzone)
+            jugadorPosicion.x -= velocidadMovimiento;
+        else if (x > joystick_deadzone)
+            jugadorPosicion.x += velocidadMovimiento;
+
+        if (y < -joystick_deadzone)
+            jugadorPosicion.y -= velocidadMovimiento;
+        else if (y > joystick_deadzone)
+            jugadorPosicion.y += velocidadMovimiento;
 
 
         // Actualizar la posición del personaje en función del estado de los botones
@@ -473,10 +504,12 @@ int main(int argc, char** argv)
     SDL_DestroyWindow(window);
 
     Mix_CloseAudio();
+    SDL_JoystickClose(joystick);
     TTF_Quit();
     IMG_Quit();
     SDL_Quit();
     romfsExit();
     return 0;
-}
+    }
+
 

@@ -14,6 +14,7 @@
 
 #define SCREEN_W 1280
 #define SCREEN_H 720
+#define JOYSTICK_DEAD_ZONE 8000
 
 #define TIPO_GROUND_CHECK 1
 #define TIPO_MONEDA_YOSHI 2
