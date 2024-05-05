@@ -163,12 +163,6 @@
 #define RUTA_RUN_3                               "data/pumpkin_dude/pumpkin_dude_run_anim_f3.png"
 
 
-#define RUTA_MUERTE                              "data/pumpkin_dude/goblin_idle_anim_f0.png"
-
-
-#define RUTA_MAPA_MUNDO_2							"data/mapas/mundo1/Mundo2.dat"
-
-
 
 
 

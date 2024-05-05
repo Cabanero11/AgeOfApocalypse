@@ -15,9 +15,6 @@
 #include "gameEngine.h"
 
 
-//Your own raw RGB888 1280x720 image at "data/image.bin" is required.
-//#include "image_bin.h"
-
 // LAS CONSTANTES SE DEFINEN EN constantes.h
 
 // Variables de movimiento
@@ -32,7 +29,7 @@ float velocidadMovimiento = 5.0f;
 #define CPU_TICKS_PER_SECOND 19200000
 #define DURATION_SECONDS 600 // 10 minutos en segundos
 
-int minutes = 10; // Variable para los minutos
+int minutes = 60; // Variable para los minutos
 int seconds = 0;  // Variable para los segundos
 SDL_Rect tiempo_rect = { SCREEN_W / 2, 36, 0, 0 }; // Posición del texto del tiempo
 
@@ -83,8 +80,6 @@ void MoverEnemigoHaciaElJugador(Enemigo& enemigo, const SDL_Rect* jugador, doubl
     // Calculamos el vector dirección
     double direccion_x = jugador->x - enemigo.pos.x;
     double direccion_y = jugador->y - enemigo.pos.y;
-    //posicion.x = floor(cuerpoFisico->GetPosition().x) - posicion.w / 2.0f;
-	//posicion.y = floor(cuerpoFisico->GetPosition().y) - posicion.h / 2.0f;
 
     // Normalizamos el vector dirección
     double longitud = sqrt(pow(direccion_x, 2) + pow(direccion_y, 2));
@@ -147,43 +142,6 @@ struct Proyectil {
 };
 
 
-// Función para inicializar un proyectil
-void InicializarProyectil(Proyectil& proyectil, SDL_Renderer* renderer, const char* filename, int x, int y) {
-    proyectil.texture = IMG_LoadTexture(renderer, filename);
-    if (!proyectil.texture) {
-        printf("Error cargando la textura del proyectil: %s\n", IMG_GetError());
-        exit(EXIT_FAILURE);
-    }
-
-    // Posicionar el proyectil en la misma posición que el jugador
-    proyectil.pos = { x, y, 16, 16 };
-
-    proyectil.coord = { (double)x, (double)y };
-
-    // Definir una velocidad para el proyectil
-    proyectil.velocidad = 5.0;
-
-    // Generar una dirección aleatoria para el proyectil
-    double angulo = rand() % 360; // Ángulo en grados
-    proyectil.direccion_x = cos(angulo * M_PI / 180); // Componente x de la dirección
-    proyectil.direccion_y = sin(angulo * M_PI / 180); // Componente y de la dirección
-}
-
-// Función para mover un proyectil
-void MoverProyectil(Proyectil& proyectil) {
-    // Mover el proyectil en su dirección actual
-    proyectil.coord.x += proyectil.velocidad * proyectil.direccion_x;
-    proyectil.coord.y += proyectil.velocidad * proyectil.direccion_y;
-
-    // Actualizar la posición del proyectil
-    proyectil.pos.x = (int)proyectil.coord.x;
-    proyectil.pos.y = (int)proyectil.coord.y;
-}
-
-// Función para dibujar un proyectil en el renderer
-void DibujarProyectil(SDL_Renderer* renderer, const Proyectil& proyectil) {
-    SDL_RenderCopy(renderer, proyectil.texture, NULL, &proyectil.pos);
-}
 
 
 
@@ -218,7 +176,7 @@ enum EstadoJugador {
 
 
 // VARIABLES ANIMACION
-
+/*
 // Declarar la variable animacionJugador antes de su uso
 Animacion animacionJugador;
 
@@ -229,14 +187,14 @@ const char* animacionJugadorFrames[4] = {
     "data/pumpkin_dude/pumpkin_dude_idle_anim_f3.png"
 };
 
-
+*/
 
 
 EstadoJugador estadoJugador = IDLE;
 
 // Render the animation
 void renderizarAnimacionJugador() {
-    animacionJugador.Renderizar();
+    //animacionJugador.Renderizar();
     SDL_RenderPresent(renderer);
 }
 
@@ -254,145 +212,14 @@ Interfaz* interfaz;
 // MAIN
 int main(int argc, char** argv) 
 {
-    /** MARIO
-     
-    
-    */
+
+    romfsInit();
+    chdir("romfs:/");
+
     // Obtiene la ventana predeterminada
-    //NWindow* win = nwindowGetDefault();
-    
-    // Iniciamos para poder leer archivos
-	romfsInit();
-	chdir("romfs:/");
-	
-	// Iniciamos lo relacionado con el mundo fisico
-	b2Vec2 gravity(0.0, 0.0f);
-	b2World world(gravity);
-	DetectorDeColisiones detector;
-	world.SetContactListener(&detector);
-	
-	int exit_requested = 0;
-
-    int joystick_deadzone = 8000;
-	//int joystick_speed = 1;
-
-	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_TIMER);
-	IMG_Init(IMG_INIT_PNG);
-	
-	// Creamos la ventana y el renderer
-	window = SDL_CreateWindow("Test Jugador", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_W, SCREEN_H, SDL_WINDOW_SHOWN);
-	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
-	
-	SDL_Joystick* joystick = SDL_JoystickOpen(0);
-    if (!joystick) 
-	{
-        printf("Error: no se pudo abrir el joystick.\n");
-        return 1;
-    }
-	
-	// Creamos los elementos del nivel
-	interfaz = new Interfaz();
-	Camara2 camara2(0.0f, 0.0f);
-	//Mapa2 mundo1(RUTA_MAPA_MUNDO_2, &camara2, &world);
-	Jugador2 jugador(&camara2, &world);
-	camara2.AsignarJugador2(&jugador);
-
-     // ENEMIGO GOBLIN
-    Enemigo goblin;
-    InicializarEnemigo(goblin, renderer, "data/goblin/goblin_idle_anim_f0.png", SCREEN_W / 2 , SCREEN_H / 2);
-
-    // MUSICA
-    Mix_Music* music = NULL;
-    Mix_Chunk* sound[4] = { NULL }; 
-    u64 snd;
-
-    music = Mix_LoadMUS("data/background.ogg");
-    sound[0] = Mix_LoadWAV("data/pop1.wav");
-    sound[1] = Mix_LoadWAV("data/pop2.wav");
-    sound[2] = Mix_LoadWAV("data/pop3.wav");
-    sound[3] = Mix_LoadWAV("data/pop4.wav");
-
-    if (music)
-        Mix_PlayMusic(music, -1);
-	
-    while (!exit_requested && appletMainLoop()) 
-	{
-        //SDL_SetRenderDrawColor(renderer, mundo1.fondoR, mundo1.fondoG, mundo1.fondoB, 0xFF);
-        SDL_RenderClear(renderer);
-    
-    	// Manejar la entrada del joystick
-    	SDL_JoystickUpdate();
-    	int x = SDL_JoystickGetAxis(joystick, 0);
-    	int y = SDL_JoystickGetAxis(joystick, 1);
-
-        // CONTROLES
-        SDL_JoystickEventState(SDL_ENABLE);
-        SDL_JoystickOpen(0);
+    NWindow* win = nwindowGetDefault();
 
 
-        // Actualizar la posición de la imagen en función de la entrada del joystick
-    	if (x < -joystick_deadzone)
-            jugador.MoverIzquierda();
-        else if (x > joystick_deadzone)
-            jugador.MoverDerecha();
-
-        if (y < -joystick_deadzone)
-            jugador.MoverAbajo();
-        else if (y > joystick_deadzone)
-            jugador.MoverArriba();
-
-    		
-    	//camara.x += 6 * x;
-    	//camara.y += 6 * y;
-	
-		// Renderizamos todo lo necesario
-		//mundo1.Renderizar();
-		interfaz->Renderizar();
-		jugador.Renderizar2(x, y);
-        //jugador.Renderizar2(y);
-
-       
-
-        // Mover el enemigo hacia el jugador (pumpkin)
-        MoverEnemigoHaciaElJugador(goblin, &jugador.posicion, 0.1f);
-
-        // Dibujar el enemigo (goblin)
-        DibujarEnemigo(renderer, goblin);
-
-		// Actualizamos el mundo fisico
-    	world.Step(1.0f / 60.0f, 6, 2);
-    	
-    	// Renderizamos en pantalla
-    	SDL_RenderPresent(renderer);
-
-   
-    } // FIN BUCLE MAIN
-
-    // Liberamos todo lo necesario
-
-    // Parar sonidos y liberar data 
-    Mix_HaltChannel(-1);
-    Mix_FreeMusic(music);
-    for (snd = 0; snd < 4; snd++)
-        if (sound[snd])
-            Mix_FreeChunk(sound[snd]);
-
-    //mundo1.Destruir();
-	interfaz->Destruir();
-    SDL_DestroyTexture(goblin.texture); // Destruir la textura del goblin para liberar la memoria
-    IMG_Quit();
-    SDL_Quit();
-    romfsExit();
-    return 0;
-
-
-
-    /*
-     // CODIGO DEL MAIN ANTIGUO
-     // CODIGO DEL MAIN ANTIGUO
-     // CODIGO DEL MAIN ANTIGUO
-
-    
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK);
     IMG_Init(IMG_INIT_PNG);
     TTF_Init();
@@ -406,14 +233,21 @@ int main(int argc, char** argv)
     SDL_Rect helloworld_rect = { 0, SCREEN_H - 36, 0, 0 };
     //SDL_Rect helloworld_rect = { SCREEN_W / 2, 36, 0, 0 };
     SDL_Color white = { 255, 255, 255, 0 };
-    SDL_Texture* helloworld_tex = render_text(renderer, "Bye bye!", font, white, &helloworld_rect);
+    SDL_Texture* helloworld_tex = render_text(renderer, ":(", font, white, &helloworld_rect);
+
+
+    SDL_Texture* backgroundTexture = IMG_LoadTexture(renderer, "data/background/Background.png");
+    if (!backgroundTexture) {
+        printf("Error cargando la textura de fondo: %s\n", IMG_GetError());
+
+}
 
 
 
     SDL_Surface* jugadorSurface = IMG_Load("data/pumpkin_dude/pumpkin_dude_idle_anim_f0.png");
     // Multiplica las dimensiones originales del sprite por un factor de escala (por ejemplo, 2 para duplicar el tamaño)
     SDL_Texture* jugadorTextura = SDL_CreateTextureFromSurface(renderer, jugadorSurface);               //jugadorSurface->w * 2 Para x2 tamaño
-    SDL_Rect jugadorPosicion = { SCREEN_W / 2 - jugadorSurface->w, SCREEN_H / 2 - jugadorSurface->h, jugadorSurface->w,  jugadorSurface->h };
+    SDL_Rect jugadorPosicion = { SCREEN_W / 2 - jugadorSurface->w, SCREEN_H / 2 - jugadorSurface->h, jugadorSurface->w,  jugadorSurface->h};
     SDL_FreeSurface(jugadorSurface);
 
 
@@ -451,23 +285,15 @@ int main(int argc, char** argv)
 
     
 
-   
+    // CONTROLES
+    SDL_JoystickEventState(SDL_ENABLE);
+    SDL_JoystickOpen(0);
     
 
 
     // ENEMIGO GOBLIN
     Enemigo goblin;
     InicializarEnemigo(goblin, renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 15, jugadorPosicion.y);
-
-
-    // IMAGEN DE FONDO
-    
-
-    // Crea un framebuffer lineal de doble búfer
-    Framebuffer fb;
-    framebufferCreate(&fb, win, SCREEN_W, SCREEN_H, PIXEL_FORMAT_RGBA_8888, 2);
-    framebufferMakeLinear(&fb);
-
 
     
     // BUCLE
@@ -547,13 +373,6 @@ int main(int argc, char** argv)
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
-        
-        // CARGAR IMAGEN FONDO
-      
-
-        // CREAR ANIMACIO
-        animacionJugador.CrearAnimacion(4, 60, animacionJugadorFrames);
-
 
 
         // ########################
@@ -561,9 +380,10 @@ int main(int argc, char** argv)
         // ########################
 
         estadoJugador = RUN;
-        renderizarAnimacionJugador();
+        //renderizarAnimacionJugador();
 
-        
+        // Renderizar imagen de fondo
+        SDL_RenderCopy(renderer, backgroundTexture, NULL, NULL);
 
 
 
@@ -582,6 +402,10 @@ int main(int argc, char** argv)
         {
             seconds = 59;
             minutes--;
+        } 
+        else if(minutes < 0)
+        {
+            SDL_Texture* helloworld_tex = render_text(renderer, "Se acabo el tiempo", font, white, &helloworld_rect);
         }
 
         // Actualizar el texto del tiempo
@@ -592,23 +416,18 @@ int main(int argc, char** argv)
         
         if (tiempo_tex)
             SDL_RenderCopy(renderer, tiempo_tex, NULL, &tiempo_rect);
-
-
+        
+        
         // Dibujar el texto en la parte inferior de la pantalla
         SDL_RenderCopy(renderer, helloworld_tex, NULL, &helloworld_rect);
 
-        // Actualizamos el mundo fisico
-    	//world.Step(1.0f / 60.0f, 6, 2);
+        
 
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
-        */
-    
+    } // FIN BUCLE MAIN
 
-    /**
-     
-     // CODIGO DESPUES DEL MAIN
-    
+
     SDL_DestroyTexture(jugadorTextura);
     SDL_DestroyTexture(helloworld_tex);
     SDL_DestroyTexture(tiempo_tex);
@@ -625,8 +444,6 @@ int main(int argc, char** argv)
         if (sound[snd])
             Mix_FreeChunk(sound[snd]);
 
-    // CERRAR EL Buffer de Fondo
-    framebufferClose(&fb);
 
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
@@ -637,6 +454,5 @@ int main(int argc, char** argv)
     SDL_Quit();
     romfsExit();
     return 0;
-    */
 }
 

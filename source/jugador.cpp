@@ -99,7 +99,6 @@ Jugador::Jugador(Camara* camara, b2World* world)
 	tamanyo = 0;
 	direccion = 0;
 	velocidad = 0;
-	int velocidad_movimiento = 10;
 	posicion.x = 20;
 	posicion.y = 20;
 	posicion.w = 16;
@@ -191,7 +190,6 @@ Jugador::Jugador(Camara* camara, b2World* world)
 	};
 	muerte.CrearAnimacion(2, nTickPorFrame, muerte0);
 }
-
 
 
 /*
@@ -354,7 +352,5 @@ void Jugador::Renderizar(int x, bool saltado)
 		case Muerte:
 			break;
 	}
-
-	
 }
 
