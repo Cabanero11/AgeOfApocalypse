@@ -110,6 +110,45 @@ void MoverEnemigoHaciaElJugador(Enemigo& enemigo, const SDL_Rect* jugador, doubl
 
 
 
+// INTENDO DE OLEADAS
+
+Enemigo enemigosGoblins[10];
+int posicionesSpawn[8];
+
+void OleadasGoblins(const SDL_Rect* jugadorPosicion) {
+    for(int i = 0; i < 8; i++) {
+        InicializarEnemigo(enemigosGoblins[i], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion->x + posicionesSpawn[i % 2], jugadorPosicion->y + posicionesSpawn[i %2]);
+        MoverEnemigoHaciaElJugador(enemigosGoblins[i], jugadorPosicion, 5.0f);
+    }
+}
+
+
+void LiberarMemoriaGoblins() {
+    for(int i = 0; i < 8; i++) {
+        SDL_DestroyTexture(enemigosGoblins[i].texture);
+    }
+}
+
+void DibujarOleadas() {
+    for(int i = 0; i < 8; i++) {
+        DibujarEnemigo(renderer, enemigosGoblins[i]);
+    }
+}
+// Para crear 8 puntos en un circulo fuera de la pantalla
+void calcularPosicionesSpawn(int posicionesSpawn[], int anchoPantalla, int altoPantalla) {
+    const int cantidadPuntos = 8; // Cantidad de puntos de spawn
+    const double radio = sqrt(pow(anchoPantalla / 2.0, 2) + pow(altoPantalla / 2.0, 2)); // Radio del círculo circunscrito
+
+    for (int i = 0; i < cantidadPuntos; ++i) {
+        double angulo = 2 * 3.14159265358979323846 * i / cantidadPuntos; // Ángulo en radianes
+        posicionesSpawn[i * 2] = static_cast<int>(anchoPantalla / 2 + radio * cos(angulo)); // Calcula la coordenada x
+        posicionesSpawn[i * 2 + 1] = static_cast<int>(altoPantalla / 2 + radio * sin(angulo)); // Calcula la coordenada y
+    }
+}
+
+
+
+
 
 
 SDL_Texture* render_text(SDL_Renderer* renderer, const char* text, TTF_Font* font, SDL_Color color, SDL_Rect* rect) 
@@ -216,6 +255,9 @@ SDL_Window* window;
 Interfaz* interfaz;
 
 
+
+
+
 // MAIN
 int main(int argc, char** argv) 
 {
@@ -224,7 +266,7 @@ int main(int argc, char** argv)
     chdir("romfs:/");
 
     // Obtiene la ventana predeterminada
-    NWindow* win = nwindowGetDefault();
+    //NWindow* win = nwindowGetDefault();
 
     // Ajustar el tiempo en función de los fotogramas por segundo
     int frames_per_second = 60; // Asumiendo que el juego se ejecuta a 60 fotogramas por segundo
@@ -232,6 +274,12 @@ int main(int argc, char** argv)
     int total_frames = minutes * frames_per_minute + seconds * frames_per_second;
 
     
+    // CAlcular circulo fuera de la pantalla
+    const int anchoPantalla = 1280;
+    const int altoPantalla = 720;
+    posicionesSpawn[8]; // Definimos un array de 8 posiciones
+
+    calcularPosicionesSpawn(posicionesSpawn, anchoPantalla, altoPantalla);
 
 
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK);
@@ -410,6 +458,7 @@ int main(int argc, char** argv)
 
         // Mover el enemigo hacia el jugador (pumpkin)
         MoverEnemigoHaciaElJugador(goblin, &jugadorPosicion, 5.0f);
+        OleadasGoblins(&jugadorPosicion);
 
 
         // LIMPIAR LA PANTALLA
@@ -432,6 +481,7 @@ int main(int argc, char** argv)
 
         // Dibujar el enemigo (goblin)
         DibujarEnemigo(renderer, goblin);
+        DibujarOleadas();
 
         // Dibujar el personaje
         SDL_RenderCopy(renderer, jugadorTextura, NULL, &jugadorPosicion);
@@ -488,6 +538,7 @@ int main(int argc, char** argv)
     SDL_DestroyTexture(helloworld_tex);
     SDL_DestroyTexture(tiempo_tex);
     SDL_DestroyTexture(goblin.texture); // Destruir la textura del goblin para liberar la memoria
+    LiberarMemoriaGoblins();
 
     //animacionJugador.Destruir();
 
