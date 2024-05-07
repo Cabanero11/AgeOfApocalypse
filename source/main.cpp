@@ -108,6 +108,22 @@ void MoverEnemigoHaciaElJugador(Enemigo& enemigo, const SDL_Rect* jugador, doubl
     enemigo.pos.y = (int)enemigo.coord.y;
 }
 
+// Función para detectar colisión entre el jugador y un enemigo
+bool detectarColisionJugadorEnemigo(SDL_Rect* jugador, Enemigo& enemigo) {
+    // Verificar si las coordenadas del jugador y del enemigo se superponen
+    if (jugador->x < enemigo.pos.x + enemigo.pos.w &&
+        jugador->x + jugador->w > enemigo.pos.x &&
+        jugador->y < enemigo.pos.y + enemigo.pos.h &&
+        jugador->y + jugador->h > enemigo.pos.y) {
+        // Colisión detectada, aquí puedes agregar la lógica correspondiente
+        // por ejemplo, decrementar la salud del jugador
+        printf("¡Colisión detectada entre el jugador y un enemigo!\n");
+        return true;
+    }
+
+    return false;
+}
+
 
 
 // INTENDO DE OLEADAS
@@ -171,6 +187,9 @@ void calcularPosicionesSpawn(int posicionesSpawn[], int anchoPantalla, int altoP
 
 
 
+
+
+
 SDL_Texture* render_text(SDL_Renderer* renderer, const char* text, TTF_Font* font, SDL_Color color, SDL_Rect* rect) 
 {
     SDL_Surface* surface = TTF_RenderText_Solid(font, text, color);
@@ -206,6 +225,54 @@ struct Proyectil {
     double direccion_x;     // Componente x de la dirección del proyectil
     double direccion_y;     // Componente y de la dirección del proyectil
 };
+
+
+Proyectil crearProyectilDesdeJugador(SDL_Renderer* renderer, const char* filename, const SDL_Rect* jugadorPosicion, double velocidad, double direccion_x, double direccion_y) {
+    Proyectil proyectil;
+    proyectil.texture = IMG_LoadTexture(renderer, filename);
+    if (!proyectil.texture) {
+        printf("Error cargando la textura del proyectil: %s\n", IMG_GetError());
+        exit(EXIT_FAILURE);
+    }
+    proyectil.pos = { jugadorPosicion->x + jugadorPosicion->w / 2, jugadorPosicion->y + jugadorPosicion->h / 2, 16, 16 }; // Posición inicial del proyectil en el centro del jugador
+    proyectil.coord = { (double)proyectil.pos.x, (double)proyectil.pos.y };
+    proyectil.velocidad = velocidad;
+    proyectil.direccion_x = direccion_x;
+    proyectil.direccion_y = direccion_y;
+    return proyectil;
+}
+
+// Función para inicializar un proyectil
+void InicializarProyectil(Proyectil& proyectil, SDL_Renderer* renderer, const char* filename, int x, int y, double velocidad, double direccion_x, double direccion_y) {
+    proyectil.texture = IMG_LoadTexture(renderer, filename);
+    if (!proyectil.texture) {
+        printf("Error cargando la textura del proyectil: %s\n", IMG_GetError());
+        exit(EXIT_FAILURE);
+    }
+
+    proyectil.pos = { x, y, 16, 16 }; // Aquí puedes ajustar el tamaño del proyectil según tus necesidades
+
+    proyectil.coord = { (double)x, (double)y };
+    proyectil.velocidad = velocidad;
+    proyectil.direccion_x = direccion_x;
+    proyectil.direccion_y = direccion_y;
+}
+
+// Función para mover un proyectil
+void MoverProyectil(Proyectil& proyectil) {
+    // Mover el proyectil en la dirección dada por su velocidad y dirección
+    proyectil.coord.x += proyectil.velocidad * proyectil.direccion_x;
+    proyectil.coord.y += proyectil.velocidad * proyectil.direccion_y;
+
+    // Actualizar la posición del proyectil
+    proyectil.pos.x = (int)proyectil.coord.x;
+    proyectil.pos.y = (int)proyectil.coord.y;
+}
+
+// Función para dibujar un proyectil en el renderer
+void DibujarProyectil(SDL_Renderer* renderer, const Proyectil& proyectil) {
+    SDL_RenderCopy(renderer, proyectil.texture, NULL, &proyectil.pos);
+}
 
 
 
@@ -297,7 +364,7 @@ int main(int argc, char** argv)
     // CAlcular circulo fuera de la pantalla
     //const int anchoPantalla = 1280;
     //const int altoPantalla = 720;
-    int posicionesSpawn[16]; // Definimos un array de 16 posiciones
+    //int posicionesSpawn[16]; // Definimos un array de 16 posiciones
 
     //calcularPosicionesSpawn(posicionesSpawn, anchoPantalla, altoPantalla);
 
@@ -421,9 +488,15 @@ int main(int argc, char** argv)
         InicializarEnemigo(enemigosBigDemon[i], renderer, "data/big_demon/big_demon_idle_anim_f3.png", posicionesDemons[i][0], posicionesDemons[i][1]);
     }
     
+
+    // #######################################
+    // PROYECTILES
+    // #######################################
     
+    // INICIALIZAR UN PROYECTIL DESDE EL JUGADOR
+    Proyectil proyectilJugador = crearProyectilDesdeJugador(renderer, "data/switch.png", &jugadorPosicion, 10.0, 10.0, 20.0);
 
-
+    
     
     
     // BUCLE
@@ -525,7 +598,7 @@ int main(int argc, char** argv)
         MoverEnemigoHaciaElJugador(goblin, &jugadorPosicion, 5.0f);
 
         // Mover 8 goblins hacia el jugador
-        if(current_minutes == 4 && current_seconds == 50) {
+        if(current_minutes <= 4 && current_seconds <= 50) {
             for(int i = 0; i < 8; i++) {
                 MoverEnemigoHaciaElJugador(enemigosGoblins[i], &jugadorPosicion, 5.0f);
             }
@@ -534,12 +607,30 @@ int main(int argc, char** argv)
         
         
         // Mover 8 demons hacia el jugador tras 30 segundos
-        if(current_minutes == 4 && current_seconds == 20) {
+        if(current_minutes <= 4 && current_seconds <= 20) {
             for(int i = 0; i < 8; i++) {
                 MoverEnemigoHaciaElJugador(enemigosBigDemon[i], &jugadorPosicion, 5.0f);
             }
         }
         
+        // MOVIMIENTO DEL PROYECTIL
+        // Aquí puedes agregar lógica para mover el proyectil, por ejemplo:
+        proyectilJugador.pos.x += proyectilJugador.direccion_x * proyectilJugador.velocidad;
+        proyectilJugador.pos.y += proyectilJugador.direccion_y * proyectilJugador.velocidad;
+
+        // DETECTAR COLISIONES CON EL JUGADOR
+
+        for (int i = 0; i < 8; i++) {
+            if(detectarColisionJugadorEnemigo(&jugadorPosicion, enemigosGoblins[i])) {
+                helloworld_tex = render_text(renderer, "COLISION GOBLIN", font, white, &helloworld_rect);
+            }
+        }
+
+        for (int i = 0; i < 8; i++) {
+            if(detectarColisionJugadorEnemigo(&jugadorPosicion, enemigosBigDemon[i])) {
+                helloworld_tex = render_text(renderer, "COLISION DEMON", font, white, &helloworld_rect);
+            }
+        }
 
 
         // LIMPIAR LA PANTALLA
@@ -564,6 +655,7 @@ int main(int argc, char** argv)
         DibujarEnemigo(renderer, goblin);
         DibujarOleadasGoblins();
         DibujarOleadasDemons();
+        SDL_RenderCopy(renderer, proyectilJugador.texture, NULL, &proyectilJugador.pos);
 
         // Dibujar el personaje
         SDL_RenderCopy(renderer, jugadorTextura, NULL, &jugadorPosicion);
