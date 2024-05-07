@@ -360,6 +360,11 @@ int main(int argc, char** argv)
     int frames_per_minute = frames_per_second * 60; // Fotogramas por minuto
     int total_frames = minutes * frames_per_minute + seconds * frames_per_second;
 
+
+    // JUGADOR BARRA DE VIDA
+    // 100 la barra es muy larga
+    int vidaJugador = 60;
+
     
     // CAlcular circulo fuera de la pantalla
     //const int anchoPantalla = 1280;
@@ -382,15 +387,21 @@ int main(int argc, char** argv)
     SDL_Rect helloworld_rect = { 0, SCREEN_H - 36, 0, 0 };
     //SDL_Rect helloworld_rect = { SCREEN_W / 2, 36, 0, 0 };
     SDL_Color white = { 255, 255, 255, 0 };
+    SDL_Color green = { 0, 255, 0, 0 };
     SDL_Texture* helloworld_tex = render_text(renderer, ":(", font, white, &helloworld_rect);
 
 
-        // BACKGROUND IMAGEN
+    // BACKGROUND IMAGEN
 
     SDL_Texture* backgroundTexture = IMG_LoadTexture(renderer, "data/background/Background2.png");
     if (!backgroundTexture) {
         printf("Error cargando la textura de fondo: %s\n", IMG_GetError());
     }
+
+    // GAME OVER RECTA
+
+    SDL_Rect gameOverRect = { (SCREEN_W / 2) - 80, (SCREEN_H  / 2) + 80, 0, 0 };
+    SDL_Texture* gameOverTexture;
 
     // JOYSTICK
 
@@ -426,6 +437,15 @@ int main(int argc, char** argv)
 
     // Renderizar el texto del tiempo en la pantalla
     SDL_Texture* tiempo_tex = render_text(renderer, tiempo, font, red, &tiempo_rect);
+
+    // BARRA DE VIDA
+    
+
+    SDL_Surface* vidaJugadorSurface = IMG_Load("data/barraVida.png");
+    SDL_Texture* vidaJugadorTextura = SDL_CreateTextureFromSurface(renderer, vidaJugadorSurface);
+
+    SDL_FreeSurface(vidaJugadorSurface);
+
 
 
 
@@ -623,13 +643,25 @@ int main(int argc, char** argv)
         for (int i = 0; i < 8; i++) {
             if(detectarColisionJugadorEnemigo(&jugadorPosicion, enemigosGoblins[i])) {
                 helloworld_tex = render_text(renderer, "COLISION GOBLIN", font, white, &helloworld_rect);
+                vidaJugador -= 0.5;
             }
         }
 
         for (int i = 0; i < 8; i++) {
             if(detectarColisionJugadorEnemigo(&jugadorPosicion, enemigosBigDemon[i])) {
                 helloworld_tex = render_text(renderer, "COLISION DEMON", font, white, &helloworld_rect);
+                vidaJugador -= 1;
             }
+        }
+
+        // ########################
+        // GAME OVER / FIN PARTIDA
+        // ########################
+
+        if(vidaJugador <= 0) {
+            gameOverTexture = render_text(renderer, "GAME OVER", font, red, &gameOverRect);
+            // LINEA ABAJO CIERRA EL JUEGO DIRECTAMENTE
+            //exit_requested = 1;
         }
 
 
@@ -659,6 +691,12 @@ int main(int argc, char** argv)
 
         // Dibujar el personaje
         SDL_RenderCopy(renderer, jugadorTextura, NULL, &jugadorPosicion);
+        
+        // Actualizar barra de Vida y Dibujarla
+        // Barra centrada
+        int vidaBarraX = jugadorPosicion.x + (jugadorPosicion.w - vidaJugador) / 2;
+        SDL_Rect vidaJugadorPosicion = {vidaBarraX, jugadorPosicion.y - 10, vidaJugador, 20};
+        SDL_RenderCopy(renderer, vidaJugadorTextura, NULL, &vidaJugadorPosicion);
 
        
 
@@ -697,6 +735,7 @@ int main(int argc, char** argv)
         
         // Dibujar el texto en la parte inferior de la pantalla
         SDL_RenderCopy(renderer, helloworld_tex, NULL, &helloworld_rect);
+        SDL_RenderCopy(renderer, gameOverTexture, NULL, &gameOverRect);
 
         
 
