@@ -114,6 +114,10 @@ void MoverEnemigoHaciaElJugador(Enemigo& enemigo, const SDL_Rect* jugador, doubl
 
 
 Enemigo enemigosGoblins[8];
+Enemigo enemigosBigDemon[16];
+
+#define NUM_ENEMIGOS_DEMON 16
+#define NUM_OLEADAS_DEMON 2
 
 
 // NO PASAR &jugadorPosicion sino no persigue al jugador
@@ -130,12 +134,25 @@ void LiberarMemoriaGoblins() {
     }
 }
 
-void DibujarOleadas() {
+
+
+void DibujarOleadasGoblins() {
     for(int i = 0; i < 8; i++) {
         DibujarEnemigo(renderer, enemigosGoblins[i]);
     }
 }
 
+void DibujarOleadasDemons() {
+    for(int i = 0; i < 8; i++) {
+        DibujarEnemigo(renderer, enemigosBigDemon[i]);
+    }
+}
+
+void LiberarMemoriaDemons() {
+    for(int i = 0; i < 8; i++) {
+        SDL_DestroyTexture(enemigosBigDemon[i].texture);
+    }
+}
 
 // Para crear 8 puntos en un circulo fuera de la pantalla
 void calcularPosicionesSpawn(int posicionesSpawn[], int anchoPantalla, int altoPantalla) {
@@ -278,11 +295,11 @@ int main(int argc, char** argv)
 
     
     // CAlcular circulo fuera de la pantalla
-    const int anchoPantalla = 1280;
-    const int altoPantalla = 720;
-    int posicionesSpawn[8]; // Definimos un array de 8 posiciones
+    //const int anchoPantalla = 1280;
+    //const int altoPantalla = 720;
+    int posicionesSpawn[16]; // Definimos un array de 16 posiciones
 
-    calcularPosicionesSpawn(posicionesSpawn, anchoPantalla, altoPantalla);
+    //calcularPosicionesSpawn(posicionesSpawn, anchoPantalla, altoPantalla);
 
 
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK);
@@ -318,7 +335,7 @@ int main(int argc, char** argv)
     }
 
     int joystick_deadzone = 8000;
-	int joystick_speed = 1;
+	//int joystick_speed = 1;
     
 
     SDL_Surface* jugadorSurface = IMG_Load("data/pumpkin_dude/pumpkin_dude_idle_anim_f0.png");
@@ -350,7 +367,7 @@ int main(int argc, char** argv)
     Mix_Chunk* sound[4] = { NULL }; 
     u64 snd;
 
-    music = Mix_LoadMUS("data/mewing.ogg");
+    music = Mix_LoadMUS("data/backgroundMusic.ogg");
     sound[0] = Mix_LoadWAV("data/pop1.wav");
     sound[1] = Mix_LoadWAV("data/pop2.wav");
     sound[2] = Mix_LoadWAV("data/pop3.wav");
@@ -365,11 +382,13 @@ int main(int argc, char** argv)
     SDL_JoystickEventState(SDL_ENABLE);
     SDL_JoystickOpen(0);
     
-
+    // #######################################
+    // CREAR ENEMIGOS
+    // #######################################
 
     // ENEMIGO GOBLIN
     Enemigo goblin;
-    InicializarEnemigo(goblin, renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 15, jugadorPosicion.y);
+    InicializarEnemigo(goblin, renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 300, jugadorPosicion.y);
 
     //Enemigo enemigosGoblins[8];
 
@@ -382,7 +401,28 @@ int main(int argc, char** argv)
     InicializarEnemigo(enemigosGoblins[6], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y - 20);
     InicializarEnemigo(enemigosGoblins[7], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 100, jugadorPosicion.y + -100);
 
+    // ENEMIGO DEMONS
+
+    int posicionesDemons[][2] = {
+        { jugadorPosicion.x + 850, jugadorPosicion.y + 0 },
+        { jugadorPosicion.x + 850, jugadorPosicion.y + 200 },
+        { jugadorPosicion.x - 850, jugadorPosicion.y + 120 },
+        { jugadorPosicion.x - 850, jugadorPosicion.y - 550 },
+        { jugadorPosicion.x + 0, jugadorPosicion.y + 840 },
+        { jugadorPosicion.x + 300, jugadorPosicion.y - 180 },
+        { jugadorPosicion.x + 0, jugadorPosicion.y - 210 },
+        { jugadorPosicion.x - 300, jugadorPosicion.y - 200 }
+    };
     
+
+    // INICIALIZAR 8 DEMONS
+
+    for (int i = 0; i < 8; i++) {
+        InicializarEnemigo(enemigosBigDemon[i], renderer, "data/big_demon/big_demon_idle_anim_f3.png", posicionesDemons[i][0], posicionesDemons[i][1]);
+    }
+    
+    
+
 
     
     
@@ -433,6 +473,11 @@ int main(int argc, char** argv)
         } // FIN BUCLE EVENTOS
 
 
+        
+        // Dentro del bucle principal, calcular los minutos y segundos en función del número total de fotogramas
+        int current_minutes = total_frames / frames_per_minute;
+        int current_seconds = (total_frames % frames_per_minute) / frames_per_second;
+
        // Manejar la entrada del joystick
         SDL_JoystickUpdate();
         int x = SDL_JoystickGetAxis(joystick, 0);
@@ -457,9 +502,9 @@ int main(int argc, char** argv)
                 // Lógica para el estado idle
                 break;
             case RUN:
-                if (move_up && jugadorPosicion.y >= 38)
+                if (move_up && jugadorPosicion.y >= 52)
                     jugadorPosicion.y -= velocidadMovimiento;
-                if (move_down && jugadorPosicion.y <= 630)
+                if (move_down && jugadorPosicion.y <= 650)
                     jugadorPosicion.y += velocidadMovimiento;
                 if (move_left && jugadorPosicion.x >= 80)
                     jugadorPosicion.x -= velocidadMovimiento;
@@ -472,14 +517,27 @@ int main(int argc, char** argv)
                 break;
         }
 
+        //############################################################################
+        //  MOVER ENEMIGOS          MOVER ENEMIGOS              MOVER ENEMIGOS      //
+        //############################################################################
 
         // Mover el enemigo hacia el jugador (pumpkin)
         MoverEnemigoHaciaElJugador(goblin, &jugadorPosicion, 5.0f);
 
         // Mover 8 goblins hacia el jugador
+        if(current_minutes == 4 && current_seconds == 50) {
+            for(int i = 0; i < 8; i++) {
+                MoverEnemigoHaciaElJugador(enemigosGoblins[i], &jugadorPosicion, 5.0f);
+            }
+        }
+
         
-        for(int i = 0; i < 8; i++) {
-            MoverEnemigoHaciaElJugador(enemigosGoblins[i], &jugadorPosicion, 5.0f);
+        
+        // Mover 8 demons hacia el jugador tras 30 segundos
+        if(current_minutes == 4 && current_seconds == 20) {
+            for(int i = 0; i < 8; i++) {
+                MoverEnemigoHaciaElJugador(enemigosBigDemon[i], &jugadorPosicion, 5.0f);
+            }
         }
         
 
@@ -504,16 +562,14 @@ int main(int argc, char** argv)
 
         // Dibujar el enemigo (goblin)
         DibujarEnemigo(renderer, goblin);
-        DibujarOleadas();
+        DibujarOleadasGoblins();
+        DibujarOleadasDemons();
 
         // Dibujar el personaje
         SDL_RenderCopy(renderer, jugadorTextura, NULL, &jugadorPosicion);
 
        
 
-        // Dentro del bucle principal, calcular los minutos y segundos en función del número total de fotogramas
-        int current_minutes = total_frames / frames_per_minute;
-        int current_seconds = (total_frames % frames_per_minute) / frames_per_second;
 
         // Actualización del tiempo
         total_frames--; // Incrementar el número total de fotogramas
@@ -562,6 +618,7 @@ int main(int argc, char** argv)
     SDL_DestroyTexture(tiempo_tex);
     SDL_DestroyTexture(goblin.texture); // Destruir la textura del goblin para liberar la memoria
     LiberarMemoriaGoblins();
+    LiberarMemoriaDemons();
 
     //animacionJugador.Destruir();
 
