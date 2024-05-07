@@ -112,13 +112,14 @@ void MoverEnemigoHaciaElJugador(Enemigo& enemigo, const SDL_Rect* jugador, doubl
 
 // INTENDO DE OLEADAS
 
-Enemigo enemigosGoblins[10];
-int posicionesSpawn[8];
 
+Enemigo enemigosGoblins[8];
+
+
+// NO PASAR &jugadorPosicion sino no persigue al jugador
 void OleadasGoblins(const SDL_Rect* jugadorPosicion) {
-    for(int i = 0; i < 8; i++) {
-        InicializarEnemigo(enemigosGoblins[i], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion->x + posicionesSpawn[i % 2], jugadorPosicion->y + posicionesSpawn[i %2]);
-        MoverEnemigoHaciaElJugador(enemigosGoblins[i], jugadorPosicion, 5.0f);
+    for(int i = 0; i < 1; i++) {
+        //InicializarEnemigo(enemigosGoblins[0], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion->x + 650, jugadorPosicion->y + 0);
     }
 }
 
@@ -134,6 +135,8 @@ void DibujarOleadas() {
         DibujarEnemigo(renderer, enemigosGoblins[i]);
     }
 }
+
+
 // Para crear 8 puntos en un circulo fuera de la pantalla
 void calcularPosicionesSpawn(int posicionesSpawn[], int anchoPantalla, int altoPantalla) {
     const int cantidadPuntos = 8; // Cantidad de puntos de spawn
@@ -277,7 +280,7 @@ int main(int argc, char** argv)
     // CAlcular circulo fuera de la pantalla
     const int anchoPantalla = 1280;
     const int altoPantalla = 720;
-    posicionesSpawn[8]; // Definimos un array de 8 posiciones
+    int posicionesSpawn[8]; // Definimos un array de 8 posiciones
 
     calcularPosicionesSpawn(posicionesSpawn, anchoPantalla, altoPantalla);
 
@@ -368,6 +371,20 @@ int main(int argc, char** argv)
     Enemigo goblin;
     InicializarEnemigo(goblin, renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 15, jugadorPosicion.y);
 
+    //Enemigo enemigosGoblins[8];
+
+    InicializarEnemigo(enemigosGoblins[0], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 650, jugadorPosicion.y + 0);
+    InicializarEnemigo(enemigosGoblins[1], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 650, jugadorPosicion.y + 100);
+    InicializarEnemigo(enemigosGoblins[2], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 650, jugadorPosicion.y + 20);
+    InicializarEnemigo(enemigosGoblins[3], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 650, jugadorPosicion.y - 450);
+    InicializarEnemigo(enemigosGoblins[4], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y + 740);
+    InicializarEnemigo(enemigosGoblins[5], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 100, jugadorPosicion.y + -80);
+    InicializarEnemigo(enemigosGoblins[6], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y - 20);
+    InicializarEnemigo(enemigosGoblins[7], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 100, jugadorPosicion.y + -100);
+
+    
+
+    
     
     // BUCLE
     int exit_requested = 0;
@@ -440,9 +457,9 @@ int main(int argc, char** argv)
                 // Lógica para el estado idle
                 break;
             case RUN:
-                if (move_up && jugadorPosicion.y >= 42)
+                if (move_up && jugadorPosicion.y >= 38)
                     jugadorPosicion.y -= velocidadMovimiento;
-                if (move_down && jugadorPosicion.y <= 640)
+                if (move_down && jugadorPosicion.y <= 630)
                     jugadorPosicion.y += velocidadMovimiento;
                 if (move_left && jugadorPosicion.x >= 80)
                     jugadorPosicion.x -= velocidadMovimiento;
@@ -458,7 +475,13 @@ int main(int argc, char** argv)
 
         // Mover el enemigo hacia el jugador (pumpkin)
         MoverEnemigoHaciaElJugador(goblin, &jugadorPosicion, 5.0f);
-        OleadasGoblins(&jugadorPosicion);
+
+        // Mover 8 goblins hacia el jugador
+        
+        for(int i = 0; i < 8; i++) {
+            MoverEnemigoHaciaElJugador(enemigosGoblins[i], &jugadorPosicion, 5.0f);
+        }
+        
 
 
         // LIMPIAR LA PANTALLA
