@@ -11,15 +11,26 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <iostream>
+
 // EN TEORIA AÑADIR COSAS AQUI SI NUEVAS CLASES
 #include "gameEngine.h"
+
+using namespace std;
 
 
 // LAS CONSTANTES SE DEFINEN EN constantes.h
 
+// Sistema de experiencia
+
+int nivelExperiencia = 0;
+int contadorDeExperiencia = 0;
+double porcentajeDeNivel = 0;
+
 bool partidaAcabada = false;
 
-double dañoProyecyil = 10;
+double danoProyectil = 10;
+int COOLDOWNProyectil_MAX = 60; // Tiempo de cooldownProyectil en frames (ajusta según necesites)
 
 // Variables de movimiento
 bool move_up = false;
@@ -405,7 +416,50 @@ void InicializarOleada(int numeroOleada){
     }
 }
 
+struct OrbeExperiencia {
+    SDL_Texture* texture;   // Textura del proyectil
+    SDL_Rect pos;           // Posición del proyectil
+    bool isAlive;
+};
 
+OrbeExperiencia orbesExperiencia[20][8];
+int oleadasOrbesVivos[20];
+int cantidadDeOrbesVivos = 0;
+
+// Función auxiliar para intercambiar dos elementos en un array
+void swap(int arr[], int i, int j) {
+    int temp = arr[i];
+    arr[i] = arr[j];
+    arr[j] = temp;
+}
+
+// Función para dividir el array y devolver el índice del pivote
+int partition(int arr[], int low, int high) {
+    int pivot = arr[high]; // Seleccionamos el último elemento como pivote
+    int i = low - 1; // Índice del elemento más pequeño
+
+    for (int j = low; j < high; j++) {
+        // Si el elemento actual es menor o igual al pivote
+        if (arr[j] <= pivot) {
+            i++; // Incrementa el índice del elemento más pequeño
+            swap(arr, i, j); // Intercambia arr[i] y arr[j]
+        }
+    }
+    swap(arr, i + 1, high); // Intercambia el pivote con el elemento en arr[i+1]
+    return i + 1; // Retorna el índice del pivote
+}
+
+// Función principal de Quicksort
+void quickSort(int arr[], int low, int high) {
+    if (low < high) {
+        // Encuentra el índice del pivote
+        int pi = partition(arr, low, high);
+
+        // Ordena los elementos antes y después del pivote
+        quickSort(arr, low, pi - 1);
+        quickSort(arr, pi + 1, high);
+    }
+}
 
 
 // Función para dibujar un enemigo en elrenderer
@@ -493,6 +547,12 @@ void LiberarMemoriaDemons() {
 void LiberarMemoriaOleada(int numeroOleada) {
     for(int i = 0; i < 8; i++) {
         SDL_DestroyTexture(oleadas[numeroOleada][i].texture);
+    }
+}
+
+void LiberarMemoriaOrbe(int numeroOleada) {
+    for(int i = 0; i < 8; i++) {
+        SDL_DestroyTexture(orbesExperiencia[numeroOleada][i].texture);
     }
 }
 
@@ -675,6 +735,47 @@ bool detectarColisionProyectilEnemigoOleadas(const Proyectil& proyectil, const E
     return false;
 }
 
+// #########################################################
+// ORBE EXP     7u7
+// #########################################################
+
+
+// Función para inicializar un orbe
+void InicializarOrbeExperiencia(SDL_Renderer* renderer, const char* filename, const Enemigo& enemigo, int i, int j) {
+    orbesExperiencia[i][j].texture = IMG_LoadTexture(renderer, filename);
+    if (!orbesExperiencia[i][j].texture) {
+        printf("Error cargando la textura del enemigo: %s\n", IMG_GetError());
+        exit(EXIT_FAILURE);
+    }
+
+    // 32 es el tamaño del proyectil art del enemigo
+    orbesExperiencia[i][j].pos = { enemigo.pos.x , enemigo.pos.y + 20, 20, 20 };
+
+    orbesExperiencia[i][j].isAlive = true;
+}
+
+
+// Función para dibujar un proyectil en el renderer
+void DibujarOrbeExperiencia(SDL_Renderer* renderer, const OrbeExperiencia& orbeExperiencia) {
+    SDL_RenderCopy(renderer, orbeExperiencia.texture, NULL, &orbeExperiencia.pos);
+}
+
+
+// Función para detectar colisión entre el jugador y un enemigo
+bool detectarColisionJugadorOrbeExperiencia(SDL_Rect* jugador, OrbeExperiencia& orbeExperiencia) {
+    // Verificar si las coordenadas del jugador y del enemigo se superponen
+    if (jugador->x < orbeExperiencia.pos.x + orbeExperiencia.pos.w &&
+        jugador->x + jugador->w > orbeExperiencia.pos.x &&
+        jugador->y < orbeExperiencia.pos.y + orbeExperiencia.pos.h &&
+        jugador->y + jugador->h > orbeExperiencia.pos.y) {
+        // Colisión detectada, aquí puedes agregar la lógica correspondiente
+        // por ejemplo, decrementar la salud del jugador
+        printf("¡Colisión detectada entre el jugador y un enemigo!\n");
+        return true;
+    }
+
+    return false;
+}
 
 
 
@@ -743,7 +844,6 @@ int main(int argc, char** argv)
     int total_frames = minutes * frames_per_minute + seconds * frames_per_second;
     
     int cooldownProyectil = 0;
-    const int COOLDOWNProyectil_MAX = 60; // Tiempo de cooldownProyectil en frames (ajusta según necesites)
 
 
 
@@ -789,6 +889,12 @@ int main(int argc, char** argv)
     SDL_Rect gameOverRect = { (SCREEN_W / 2) - 80, (SCREEN_H  / 2) + 80, 0, 0 };
     SDL_Texture* gameOverTexture;
 
+    // Experiencia por pantalla
+
+    SDL_Rect nivelExpRect = { 20, 700, 0, 0 };
+    SDL_Texture* nivelExpTexture;
+    SDL_Rect expRect = { 20, 650, 0, 0 };
+    SDL_Texture* expTexture;
 
     // EL PEPE
     SDL_Rect proyectilPuntoImpact = { (SCREEN_W / 2) - 80, (SCREEN_H  / 2) + 80, 0, 0 };
@@ -876,6 +982,9 @@ int main(int argc, char** argv)
     
     // INICIALIZAR UN PROYECTIL DESDE EL JUGADOR
     Proyectil proyectilJugador;
+
+    // INICIALIZAR UN ORBE DESDE EL ENEMIGO
+    OrbeExperiencia orbeExperiencia;
     
     
     
@@ -999,6 +1108,69 @@ int main(int argc, char** argv)
         }
         
 
+        // Sistema de experiencia
+
+        nivelExperiencia = contadorDeExperiencia / 16;
+        porcentajeDeNivel = (contadorDeExperiencia % 16) / 16;
+
+        switch (nivelExperiencia)
+        {
+        case 1:
+            danoProyectil = 15;
+            COOLDOWNProyectil_MAX = 60;
+            velocidadMovimiento = 5.0f;
+            break;
+        case 2:
+            danoProyectil = 15;
+            COOLDOWNProyectil_MAX = 60;
+            velocidadMovimiento = 6.0f;
+            break;
+        case 3:
+            danoProyectil = 15;
+            COOLDOWNProyectil_MAX = 50;
+            velocidadMovimiento = 6.0f;
+            break;
+        case 4:
+            danoProyectil = 20;
+            COOLDOWNProyectil_MAX = 50;
+            velocidadMovimiento = 6.0f;
+            break;
+        case 5:
+            danoProyectil = 20;
+            COOLDOWNProyectil_MAX = 50;
+            velocidadMovimiento = 8.0f;
+            break;
+        case 6:
+            danoProyectil = 20;
+            COOLDOWNProyectil_MAX = 40;
+            velocidadMovimiento = 8.0f;
+            break;
+        case 7:
+            danoProyectil = 25;
+            COOLDOWNProyectil_MAX = 40;
+            velocidadMovimiento = 8.0f;
+            break;
+        case 8:
+            danoProyectil = 30;
+            COOLDOWNProyectil_MAX = 40;
+            velocidadMovimiento = 8.0f;
+            break;
+        case 9:
+            danoProyectil = 30;
+            COOLDOWNProyectil_MAX = 40;
+            velocidadMovimiento = 10.0f;
+            break;
+        case 10:
+            danoProyectil = 30;
+            COOLDOWNProyectil_MAX = 30;
+            velocidadMovimiento = 10.0f;
+            break;
+        default:
+            break;
+        }
+
+        nivelExpTexture = render_text(renderer, ("Nivel: " + std::to_string(nivelExperiencia)).c_str(), font, red, &gameOverRect);
+        expTexture = render_text(renderer, ("Porcentaje de nivel: " + std::to_string(porcentajeDeNivel)).c_str(), font, red, &gameOverRect);
 
         // ##################
         // COOLDOWN PROYECTIL
@@ -1018,21 +1190,9 @@ int main(int argc, char** argv)
 
 
         if (cooldownProyectil > 0) {
-            cooldownProyectil--;
-            
+            cooldownProyectil--;      
 
             MoverProyectilAlEnemigo(proyectilJugador, enemigoADisparar, 8.0); // 5.0 es la velocidad del proyectil, ajusta según lo necesites
-
-            /*
-            // Detectar colisión del proyectil con el enemigo goblin
-            if (detectarColisionProyectilEnemigo(proyectilJugador, enemigoADisparar)) {
-                // Aquí puedes realizar acciones como eliminar el proyectil y dañar al enemigo goblin
-                // Por ejemplo:
-                // proyectilJugador.activo = false;
-                enemigoADisparar.life -= dañoProyectil;
-                helloworld_tex = render_text(renderer, "MISIL IMPACTO YIPIII", font, green, &helloworld_rect);
-            }
-            */
         }
 
        
@@ -1083,6 +1243,7 @@ int main(int argc, char** argv)
         // Movimiento, colisiones y render de los enemigos
 
         int contadorEnemigosMuertos = 0;
+        bool auxOrbe = false;
 
         if (!partidaAcabada) 
         {
@@ -1099,8 +1260,26 @@ int main(int argc, char** argv)
                         {
                             proyectilJugador.haImpactado = true;
                             oleadas[oleadasVivas[i]][j].tiempoUltimoImpacto = (current_minutes * 60 + current_seconds);
-                            oleadas[oleadasVivas[i]][j].life -= dañoProyecyil;
+                            oleadas[oleadasVivas[i]][j].life -= danoProyectil;
                             if (oleadas[oleadasVivas[i]][j].life <= 0) {
+                                // TRAS IMPACTAR A ENEMIGO CREAR ORBE EXP
+                                InicializarOrbeExperiencia(renderer, "data/orbe_experiencia.png", oleadas[oleadasVivas[i]][j], i, j);
+
+                                auxOrbe = false;
+
+                                for (int l = 0; l < cantidadDeOrbesVivos; l++) {
+                                    if (oleadasOrbesVivos[cantidadDeOrbesVivos] == i) {
+                                        auxOrbe = true;
+                                    }
+                                }
+
+                                if (!auxOrbe) {
+                                    oleadasOrbesVivos[cantidadDeOrbesVivos] = i;
+                                    quickSort(oleadasOrbesVivos, 0, cantidadDeOrbesVivos - 1);
+                                    cantidadDeOrbesVivos++;
+                                }
+
+
                                 oleadas[oleadasVivas[i]][j].isAlive = false;
                             }
                         }
@@ -1118,6 +1297,34 @@ int main(int argc, char** argv)
                     }
                 }
                 contadorEnemigosMuertos = 0;
+            }
+        }
+
+        int contadorOrberRecogidos = 0;
+        
+        if (!partidaAcabada) 
+        {
+            for(int i = 0; i < cantidadDeOrbesVivos; i++) {
+                for (int j = 0; j < 8; j++) {
+                    if (orbesExperiencia[oleadasOrbesVivos[i]][j].isAlive) {
+                        if (detectarColisionJugadorOrbeExperiencia(&jugadorPosicion, orbesExperiencia[oleadasOrbesVivos[i]][j])) {
+                            orbesExperiencia[oleadasOrbesVivos[i]][j].isAlive = false;
+                            contadorDeExperiencia++;
+                        }
+                        DibujarOrbeExperiencia(renderer, orbesExperiencia[oleadasOrbesVivos[i]][j]);
+                    } else {
+                        contadorOrberRecogidos++;
+                        if (contadorOrberRecogidos == 8) {
+                            for(int k = i; k < cantidadDeOrbesVivos -1; k++) {
+                                oleadasOrbesVivos[k] = oleadasOrbesVivos[k + 1];
+                            }
+                            oleadasOrbesVivos[cantidadDeOrbesVivos] = 0;
+                            cantidadDeOrbesVivos--;
+                            LiberarMemoriaOrbe(i);
+                        }
+                    }
+                }
+                contadorOrberRecogidos = 0;
             }
         }
 
@@ -1171,6 +1378,8 @@ int main(int argc, char** argv)
         // Dibujar el texto en la parte inferior de la pantalla
         SDL_RenderCopy(renderer, helloworld_tex, NULL, &helloworld_rect);
         SDL_RenderCopy(renderer, gameOverTexture, NULL, &gameOverRect);
+        SDL_RenderCopy(renderer, nivelExpTexture, NULL, &nivelExpRect);
+        SDL_RenderCopy(renderer, expTexture, NULL, &expRect);
 
         
 
