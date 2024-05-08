@@ -223,26 +223,18 @@ struct ProyectilMagico {
     double velocidad;       // Velocidad del proyectil mágico
 };
 
-// Función para crear un proyectil
-Proyectil crearProyectil(SDL_Renderer* renderer, const SDL_Rect* jugadorPosicion, const SDL_Rect* enemigoPosicion, double velocidad) {
-    Proyectil proyectil;
+ProyectilMagico crearProyectilMagico(SDL_Renderer* renderer, const SDL_Rect* jugadorPosicion, Enemigo* enemigos) {
+    ProyectilMagico proyectil;
 
     // Inicializa la posición del proyectil en la posición actual del jugador
     proyectil.pos.x = jugadorPosicion->x;
     proyectil.pos.y = jugadorPosicion->y;
 
-    // Calcula la dirección del proyectil como un vector unitario que apunta hacia el enemigo
-    double direccionX = enemigoPosicion->x - jugadorPosicion->x;
-    double direccionY = enemigoPosicion->y - jugadorPosicion->y;
-    double magnitud = sqrt(direccionX * direccionX + direccionY * direccionY);
-    proyectil.direccion.x = direccionX / magnitud;
-    proyectil.direccion.y = direccionY / magnitud;
-
     // Establece la velocidad del proyectil
-    proyectil.velocidad = velocidad;
+    proyectil.velocidad = 4.0; // Puedes ajustar la velocidad según lo necesites
 
-    // Carga la textura del proyectil (asegúrate de tener la textura adecuada)
-    proyectil.texture = IMG_LoadTexture(renderer, "ruta/a/la/textura.png");
+    // Carga la textura del proyectil mágico (asegúrate de tener la textura adecuada)
+    proyectil.texture = IMG_LoadTexture(renderer, "data/bomb_f0.png");
 
     return proyectil;
 }
