@@ -53,6 +53,9 @@ int seconds = 0;
 #define DURATION_SECONDS (10 * 60) // 10 minutos en segundos
 
 
+Mix_Music* music;
+Mix_Chunk* sound[4]; 
+
 
 
 SDL_Rect tiempo_rect = { SCREEN_W / 2, 36, 0, 0 }; // Posición del texto del tiempo
@@ -86,6 +89,10 @@ struct Enemigo {
 // VIDA ENEMIGOS
 double vidaGoblin = 20;
 double vidaDemon = 30;
+
+double vidaLizard = 25;
+double vidaOgro = 60;
+double vidaChort = 40;
 
 // Función para inicializar un enemigo
 void InicializarEnemigo(Enemigo& enemigo, SDL_Renderer* renderer, const char* filename, int x, int y, double vida) {
@@ -178,79 +185,79 @@ void InicializarOleada(int numeroOleada){
             cantidadOleadasVivas++;
         } else if (numeroOleada == 3 && !oleada3generada) {
             oleada3generada = true;
-            InicializarEnemigo(oleadas[3][0], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 0 , vidaGoblin);
-            InicializarEnemigo(oleadas[3][1], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 500, vidaGoblin);
-            InicializarEnemigo(oleadas[3][2], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y + 620, vidaGoblin);
-            InicializarEnemigo(oleadas[3][3], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y - 550, vidaGoblin);
-            InicializarEnemigo(oleadas[3][4], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y + 840, vidaGoblin);
-            InicializarEnemigo(oleadas[3][5], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 500, jugadorPosicion.y - 280, vidaGoblin);
-            InicializarEnemigo(oleadas[3][6], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y - 210, vidaGoblin);
-            InicializarEnemigo(oleadas[3][7], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 500, jugadorPosicion.y - 300, vidaGoblin);
+            InicializarEnemigo(oleadas[3][0], renderer, "data/lizard/lizard_m_hit_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 0 , vidaLizard);
+            InicializarEnemigo(oleadas[3][1], renderer, "data/lizard/lizard_m_hit_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 500, vidaLizard);
+            InicializarEnemigo(oleadas[3][2], renderer, "data/lizard/lizard_m_hit_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y + 620, vidaLizard);
+            InicializarEnemigo(oleadas[3][3], renderer, "data/lizard/lizard_m_hit_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y - 550, vidaLizard);
+            InicializarEnemigo(oleadas[3][4], renderer, "data/lizard/lizard_m_hit_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y + 840, vidaLizard);
+            InicializarEnemigo(oleadas[3][5], renderer, "data/lizard/lizard_m_hit_anim_f0.png", jugadorPosicion.x + 500, jugadorPosicion.y - 280, vidaLizard);
+            InicializarEnemigo(oleadas[3][6], renderer, "data/lizard/lizard_m_hit_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y - 210, vidaLizard);
+            InicializarEnemigo(oleadas[3][7], renderer, "data/lizard/lizard_m_hit_anim_f0.png", jugadorPosicion.x - 500, jugadorPosicion.y - 300, vidaLizard);
             contadorOleada++;
             oleadasVivas[cantidadOleadasVivas] = 3;
             cantidadOleadasVivas++;
         } else if (numeroOleada == 4 && !oleada4generada) {
             oleada4generada = true;
-            InicializarEnemigo(oleadas[4][0], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x + 850, jugadorPosicion.y + 0 , vidaDemon);
-            InicializarEnemigo(oleadas[4][1], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x + 850, jugadorPosicion.y + 500, vidaDemon);
-            InicializarEnemigo(oleadas[4][2], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x - 850, jugadorPosicion.y + 620, vidaDemon);
-            InicializarEnemigo(oleadas[4][3], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x - 850, jugadorPosicion.y - 550, vidaDemon);
-            InicializarEnemigo(oleadas[4][4], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x + 0, jugadorPosicion.y + 840, vidaDemon);
-            InicializarEnemigo(oleadas[4][5], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x + 500, jugadorPosicion.y - 280, vidaDemon);
-            InicializarEnemigo(oleadas[4][6], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x + 0, jugadorPosicion.y - 210, vidaDemon);
-            InicializarEnemigo(oleadas[4][7], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x - 500, jugadorPosicion.y - 300, vidaDemon);
+            InicializarEnemigo(oleadas[4][0], renderer, "data/ogro/ogre_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 0 , vidaOgro);
+            InicializarEnemigo(oleadas[4][1], renderer, "data/ogro/ogre_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 500, vidaOgro);
+            InicializarEnemigo(oleadas[4][2], renderer, "data/ogro/ogre_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y + 620, vidaOgro);
+            InicializarEnemigo(oleadas[4][3], renderer, "data/ogro/ogre_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y - 550, vidaOgro);
+            InicializarEnemigo(oleadas[4][4], renderer, "data/ogro/ogre_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y + 840, vidaOgro);
+            InicializarEnemigo(oleadas[4][5], renderer, "data/ogro/ogre_idle_anim_f0.png", jugadorPosicion.x + 500, jugadorPosicion.y - 280, vidaOgro);
+            InicializarEnemigo(oleadas[4][6], renderer, "data/ogro/ogre_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y - 210, vidaOgro);
+            InicializarEnemigo(oleadas[4][7], renderer, "data/ogro/ogre_idle_anim_f0.png", jugadorPosicion.x - 500, jugadorPosicion.y - 300, vidaOgro);
             contadorOleada++;
             oleadasVivas[cantidadOleadasVivas] = 4;
             cantidadOleadasVivas++;
         } else if (numeroOleada == 5 && !oleada5generada) {
             oleada5generada = true;
-            InicializarEnemigo(oleadas[5][0], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 0 , vidaGoblin);
-            InicializarEnemigo(oleadas[5][1], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 500, vidaGoblin);
-            InicializarEnemigo(oleadas[5][2], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y + 620, vidaGoblin);
-            InicializarEnemigo(oleadas[5][3], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y - 550, vidaGoblin);
-            InicializarEnemigo(oleadas[5][4], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y + 840, vidaGoblin);
-            InicializarEnemigo(oleadas[5][5], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 500, jugadorPosicion.y - 280, vidaGoblin);
-            InicializarEnemigo(oleadas[5][6], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y - 210, vidaGoblin);
-            InicializarEnemigo(oleadas[5][7], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 500, jugadorPosicion.y - 300, vidaGoblin);
+            InicializarEnemigo(oleadas[5][0], renderer, "data/chort/chort_idle_anim_f3.png", jugadorPosicion.x + 850, jugadorPosicion.y + 0 , vidaChort);
+            InicializarEnemigo(oleadas[5][1], renderer, "data/lizard/lizard_m_hit_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 500, vidaLizard);
+            InicializarEnemigo(oleadas[5][2], renderer, "data/chort/chort_idle_anim_f3.png", jugadorPosicion.x - 850, jugadorPosicion.y + 620, vidaChort);
+            InicializarEnemigo(oleadas[5][3], renderer, "data/lizard/lizard_m_hit_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y - 550, vidaLizard);
+            InicializarEnemigo(oleadas[5][4], renderer, "data/chort/chort_idle_anim_f3.png", jugadorPosicion.x + 0, jugadorPosicion.y + 840, vidaChort);
+            InicializarEnemigo(oleadas[5][5], renderer, "data/lizard/lizard_m_hit_anim_f0.png", jugadorPosicion.x + 500, jugadorPosicion.y - 280, vidaLizard);
+            InicializarEnemigo(oleadas[5][6], renderer, "data/chort/chort_idle_anim_f3.png", jugadorPosicion.x + 0, jugadorPosicion.y - 210, vidaChort);
+            InicializarEnemigo(oleadas[5][7], renderer, "data/lizard/lizard_m_hit_anim_f0.png", jugadorPosicion.x - 500, jugadorPosicion.y - 300, vidaLizard);
             contadorOleada++;
             oleadasVivas[cantidadOleadasVivas] = 5;
             cantidadOleadasVivas++;
         } else if (numeroOleada == 6 && !oleada6generada) {
             oleada6generada = true;
             InicializarEnemigo(oleadas[6][0], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x + 850, jugadorPosicion.y + 0 , vidaDemon);
-            InicializarEnemigo(oleadas[6][1], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x + 850, jugadorPosicion.y + 500, vidaDemon);
+            InicializarEnemigo(oleadas[6][1], renderer, "data/ogro/ogre_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 500, vidaOgro);
             InicializarEnemigo(oleadas[6][2], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x - 850, jugadorPosicion.y + 620, vidaDemon);
-            InicializarEnemigo(oleadas[6][3], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x - 850, jugadorPosicion.y - 550, vidaDemon);
+            InicializarEnemigo(oleadas[6][3], renderer, "data/ogro/ogre_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y - 550, vidaOgro);
             InicializarEnemigo(oleadas[6][4], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x + 0, jugadorPosicion.y + 840, vidaDemon);
-            InicializarEnemigo(oleadas[6][5], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x + 500, jugadorPosicion.y - 280, vidaDemon);
+            InicializarEnemigo(oleadas[6][5], renderer, "data/ogro/ogre_idle_anim_f0.png", jugadorPosicion.x + 500, jugadorPosicion.y - 280, vidaOgro);
             InicializarEnemigo(oleadas[6][6], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x + 0, jugadorPosicion.y - 210, vidaDemon);
-            InicializarEnemigo(oleadas[6][7], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x - 500, jugadorPosicion.y - 300, vidaDemon);
+            InicializarEnemigo(oleadas[6][7], renderer, "data/ogro/ogre_idle_anim_f0.png", jugadorPosicion.x - 500, jugadorPosicion.y - 300, vidaOgro);
             contadorOleada++;
             oleadasVivas[cantidadOleadasVivas] = 6;
             cantidadOleadasVivas++;
         } else if (numeroOleada == 7 && !oleada7generada) {
             oleada7generada = true;
-            InicializarEnemigo(oleadas[7][0], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 0 , vidaGoblin);
-            InicializarEnemigo(oleadas[7][1], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 500, vidaGoblin);
-            InicializarEnemigo(oleadas[7][2], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y + 620, vidaGoblin);
-            InicializarEnemigo(oleadas[7][3], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y - 550, vidaGoblin);
-            InicializarEnemigo(oleadas[7][4], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y + 840, vidaGoblin);
-            InicializarEnemigo(oleadas[7][5], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 500, jugadorPosicion.y - 280, vidaGoblin);
-            InicializarEnemigo(oleadas[7][6], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y - 210, vidaGoblin);
-            InicializarEnemigo(oleadas[7][7], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 500, jugadorPosicion.y - 300, vidaGoblin);
+            InicializarEnemigo(oleadas[7][0], renderer, "data/chort/chort_idle_anim_f3.png", jugadorPosicion.x + 850, jugadorPosicion.y + 0 , vidaChort);
+            InicializarEnemigo(oleadas[7][1], renderer, "data/chort/chort_idle_anim_f3.png", jugadorPosicion.x + 850, jugadorPosicion.y + 500, vidaChort);
+            InicializarEnemigo(oleadas[7][2], renderer, "data/chort/chort_idle_anim_f3.png", jugadorPosicion.x - 850, jugadorPosicion.y + 620, vidaChort);
+            InicializarEnemigo(oleadas[7][3], renderer, "data/chort/chort_idle_anim_f3.png", jugadorPosicion.x - 850, jugadorPosicion.y - 550, vidaChort);
+            InicializarEnemigo(oleadas[7][4], renderer, "data/chort/chort_idle_anim_f3.png", jugadorPosicion.x + 0, jugadorPosicion.y + 840, vidaChort);
+            InicializarEnemigo(oleadas[7][5], renderer, "data/chort/chort_idle_anim_f3.png", jugadorPosicion.x + 500, jugadorPosicion.y - 280, vidaChort);
+            InicializarEnemigo(oleadas[7][6], renderer, "data/chort/chort_idle_anim_f3.png", jugadorPosicion.x + 0, jugadorPosicion.y - 210, vidaChort);
+            InicializarEnemigo(oleadas[7][7], renderer, "data/chort/chort_idle_anim_f3.png", jugadorPosicion.x - 500, jugadorPosicion.y - 300, vidaChort);
             contadorOleada++;
             oleadasVivas[cantidadOleadasVivas] = 7;
             cantidadOleadasVivas++;
         } else if (numeroOleada == 8 && !oleada8generada) {
             oleada8generada = true;
-            InicializarEnemigo(oleadas[8][0], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 0 , vidaGoblin);
-            InicializarEnemigo(oleadas[8][1], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 500, vidaGoblin);
-            InicializarEnemigo(oleadas[8][2], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y + 620, vidaGoblin);
-            InicializarEnemigo(oleadas[8][3], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y - 550, vidaGoblin);
-            InicializarEnemigo(oleadas[8][4], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y + 840, vidaGoblin);
-            InicializarEnemigo(oleadas[8][5], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 500, jugadorPosicion.y - 280, vidaGoblin);
-            InicializarEnemigo(oleadas[8][6], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y - 210, vidaGoblin);
-            InicializarEnemigo(oleadas[8][7], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 500, jugadorPosicion.y - 300, vidaGoblin);
+            InicializarEnemigo(oleadas[8][0], renderer, "data/lizard/lizard_m_hit_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 0 , vidaLizard);
+            InicializarEnemigo(oleadas[8][1], renderer, "data/lizard/lizard_m_hit_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 500, vidaLizard);
+            InicializarEnemigo(oleadas[8][2], renderer, "data/lizard/lizard_m_hit_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y + 620, vidaLizard);
+            InicializarEnemigo(oleadas[8][3], renderer, "data/lizard/lizard_m_hit_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y - 550, vidaLizard);
+            InicializarEnemigo(oleadas[8][4], renderer, "data/lizard/lizard_m_hit_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y + 840, vidaLizard);
+            InicializarEnemigo(oleadas[8][5], renderer, "data/lizard/lizard_m_hit_anim_f0.png", jugadorPosicion.x + 500, jugadorPosicion.y - 280, vidaLizard);
+            InicializarEnemigo(oleadas[8][6], renderer, "data/lizard/lizard_m_hit_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y - 210, vidaLizard);
+            InicializarEnemigo(oleadas[8][7], renderer, "data/lizard/lizard_m_hit_anim_f0.png", jugadorPosicion.x - 500, jugadorPosicion.y - 300, vidaLizard);
             contadorOleada++;
             oleadasVivas[cantidadOleadasVivas] = 8;
             cantidadOleadasVivas++;
@@ -415,6 +422,8 @@ void InicializarOleada(int numeroOleada){
         generandoOleada = false;
     }
 }
+
+
 
 struct OrbeExperiencia {
     SDL_Texture* texture;   // Textura del proyectil
@@ -631,7 +640,7 @@ void InicializarProyectil(Proyectil& proyectil,const SDL_Rect* jugadorPosicion, 
     proyectil.velocidad = 8.0; // Puedes ajustar la velocidad según lo necesites
 
     // Carga la textura del proyectil (asegúrate de tener la textura adecuada)
-    proyectil.texture = IMG_LoadTexture(renderer, "data/bomb_f0.png");
+    proyectil.texture = IMG_LoadTexture(renderer, "data/bomb_f2.png");
 
     // Activa el proyectil
     proyectil.activo = true;
@@ -657,6 +666,8 @@ void InicializarProyectil2(Proyectil& proyectil, SDL_Renderer* renderer, const c
     proyectil.activo = true;
 
     proyectil.haImpactado = false;
+
+    
 }
 
 // Función para dibujar un proyectil en el renderer
@@ -783,6 +794,7 @@ bool detectarColisionJugadorOrbeExperiencia(SDL_Rect* jugador, OrbeExperiencia& 
 
 
 
+
 // MAQUINA ESTADOS JUGADOR
 
 enum EstadoJugador {
@@ -878,6 +890,21 @@ int main(int argc, char** argv)
     SDL_Texture* helloworld_tex = render_text(renderer, ":(", font, white, &helloworld_rect);
 
 
+
+    
+    // MUSICA
+    u64 snd;
+
+    music = Mix_LoadMUS("data/backgroundMusic.ogg");
+    sound[0] = Mix_LoadWAV("data/exp.wav");
+    sound[1] = Mix_LoadWAV("data/cannon.wav");
+    sound[2] = Mix_LoadWAV("data/muerte.wav");
+    sound[3] = Mix_LoadWAV("data/pop1.wav");
+
+    if (music)
+        Mix_PlayMusic(music, -1);
+
+
     // BACKGROUND IMAGEN
 
     SDL_Texture* backgroundTexture = IMG_LoadTexture(renderer, "data/background/Background2.png");
@@ -894,7 +921,7 @@ int main(int argc, char** argv)
 
     SDL_Rect nivelExpRect = { 0, 0, 0, 0 };
     SDL_Texture* nivelExpTexture;
-    SDL_Rect expRect = { 0, 30, 0, 0 };
+    SDL_Rect expRect = { 0, 25, 0, 0 };
     SDL_Texture* expTexture;
 
     // EL PEPE
@@ -949,19 +976,7 @@ int main(int argc, char** argv)
 
 
 
-    // MUSICA
-    Mix_Music* music = NULL;
-    Mix_Chunk* sound[4] = { NULL }; 
-    u64 snd;
-
-    music = Mix_LoadMUS("data/backgroundMusic.ogg");
-    sound[0] = Mix_LoadWAV("data/pop1.wav");
-    sound[1] = Mix_LoadWAV("data/pop2.wav");
-    sound[2] = Mix_LoadWAV("data/pop3.wav");
-    sound[3] = Mix_LoadWAV("data/pop4.wav");
-
-    if (music)
-        Mix_PlayMusic(music, -1);
+    
 
     
 
@@ -1202,8 +1217,8 @@ int main(int argc, char** argv)
             InicializarProyectil2(proyectilJugador, renderer, "data/bomb_f0.png", jugadorPosicion.x , jugadorPosicion.y, &jugadorPosicion);
             //MoverProyectilAlEnemigo(proyectilJugador, goblin, 8.0); // 5.0 es la velocidad del proyectil, ajusta según lo necesites
             
-            Mix_PlayChannel(-1, sound[0], 0); // SONIDITO DE DISPARO OH
-            helloworld_tex = render_text(renderer, "MISIL DISPARADO RAHHH", font, white, &helloworld_rect);
+           
+            //helloworld_tex = render_text(renderer, "MISIL DISPARADO RAHHH", font, white, &helloworld_rect);
             cooldownProyectil = COOLDOWNProyectil_MAX; // Establece el cooldownProyectil original
         }
 
@@ -1259,11 +1274,13 @@ int main(int argc, char** argv)
                         if(detectarColisionProyectilEnemigo(proyectilJugador, oleadas[oleadasVivas[i]][j]) 
                         && oleadas[oleadasVivas[i]][j].tiempoUltimoImpacto >= (current_minutes * 60 + current_seconds + 1)) 
                         {
+                            Mix_PlayChannel(-1, sound[1], 0); // SONIDITO DE DISPARO OH
                             proyectilJugador.haImpactado = true;
                             oleadas[oleadasVivas[i]][j].tiempoUltimoImpacto = (current_minutes * 60 + current_seconds);
                             oleadas[oleadasVivas[i]][j].life -= danoProyectil;
                             if (oleadas[oleadasVivas[i]][j].life <= 0) {
                                 // TRAS IMPACTAR A ENEMIGO CREAR ORBE EXP
+                                Mix_PlayChannel(-1, sound[0], 0);
                                 InicializarOrbeExperiencia(renderer, "data/orbe_experiencia.png", oleadas[oleadasVivas[i]][j], i, j);
 
                                 auxOrbe = false;
@@ -1309,6 +1326,7 @@ int main(int argc, char** argv)
                 for (int j = 0; j < 8; j++) {
                     if (orbesExperiencia[oleadasOrbesVivos[i]][j].isAlive) {
                         if (detectarColisionJugadorOrbeExperiencia(&jugadorPosicion, orbesExperiencia[oleadasOrbesVivos[i]][j])) {
+                            Mix_PlayChannel(-1, sound[2], 0);
                             orbesExperiencia[oleadasOrbesVivos[i]][j].isAlive = false;
                             contadorDeExperiencia++;
                         }
