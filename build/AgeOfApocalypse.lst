@@ -24,32 +24,31 @@
 0000000000000be0 000000000000006c t _GLOBAL__sub_D_builtin_types.cpp
 0000000000000c50 0000000000000034 t _GLOBAL__sub_D_eh_globals.cc
 0000000000000c90 0000000000000034 T exit
-0000000000000cd0 0000000000000e30 T main
-0000000000001b00 0000000000000014 t _GLOBAL__sub_I_builtin_functions.cpp
-0000000000001b20 0000000000001f80 t _GLOBAL__sub_I_glsl_types.cpp
-0000000000003aa0 0000000000000044 t _GLOBAL__sub_I_ir_to_mesa.cpp
-0000000000003af0 0000000000000090 t _GLOBAL__sub_I_st_glsl_to_tgsi.cpp
-0000000000003b80 0000000000000f08 t _GLOBAL__sub_I_builtin_types.cpp
-0000000000004a90 0000000000000048 t _GLOBAL__sub_I_nv50_ir_ra.cpp
-0000000000004ae0 0000000000000024 t _GLOBAL__sub_I_fastmix.cpp
-0000000000004b10 00000000000000a4 t _GLOBAL__sub_I_cxx11_locale_inst.cc
-0000000000004bc0 00000000000000a4 t _GLOBAL__sub_I_cxx11_wlocale_inst.cc
-0000000000004c70 0000000000000108 t _GLOBAL__sub_I_locale_inst.cc
-0000000000004d80 0000000000000108 t _GLOBAL__sub_I_wlocale_inst.cc
-0000000000004e90 0000000000000204 t _GLOBAL__sub_I_eh_alloc.cc
-00000000000050a0 0000000000000038 t _GLOBAL__sub_I_eh_globals.cc
-00000000000050e0 000000000000007c t _GLOBAL__sub_I_b2_block_allocator.cpp
-0000000000005160 000000000000000c t _GLOBAL__sub_I_b2_math.cpp
-0000000000005170 t __do_global_dtors_aux
-00000000000051c0 t frame_dummy
-00000000000051f0 0000000000000024 t InicializarEnemigo(Enemigo&, SDL_Renderer*, char const*, int, int) [clone .part.0]
-00000000000051f0 0000000000000024 t InicializarProyectil2(Proyectil&, SDL_Renderer*, char const*, int, int) [clone .part.0]
-0000000000005220 0000000000000064 T InicializarEnemigo(Enemigo&, SDL_Renderer*, char const*, int, int)
-0000000000005290 0000000000000054 T MoverEnemigoHaciaElJugador(Enemigo&, SDL_Rect const*, double)
-00000000000052f0 0000000000000034 T LiberarMemoriaGoblins()
-0000000000005330 000000000000003c T LiberarMemoriaDemons()
-0000000000005370 0000000000000064 T render_text(SDL_Renderer*, char const*, _TTF_Font*, SDL_Color, SDL_Rect*)
-00000000000053e0 000000000000004c T MoverProyectilAlJugador(Proyectil&, SDL_Rect const*, double)
+0000000000000cd0 0000000000000e78 T main
+0000000000001b50 0000000000000014 t _GLOBAL__sub_I_builtin_functions.cpp
+0000000000001b70 0000000000001f80 t _GLOBAL__sub_I_glsl_types.cpp
+0000000000003af0 0000000000000044 t _GLOBAL__sub_I_ir_to_mesa.cpp
+0000000000003b40 0000000000000090 t _GLOBAL__sub_I_st_glsl_to_tgsi.cpp
+0000000000003bd0 0000000000000f08 t _GLOBAL__sub_I_builtin_types.cpp
+0000000000004ae0 0000000000000048 t _GLOBAL__sub_I_nv50_ir_ra.cpp
+0000000000004b30 0000000000000024 t _GLOBAL__sub_I_fastmix.cpp
+0000000000004b60 00000000000000a4 t _GLOBAL__sub_I_cxx11_locale_inst.cc
+0000000000004c10 00000000000000a4 t _GLOBAL__sub_I_cxx11_wlocale_inst.cc
+0000000000004cc0 0000000000000108 t _GLOBAL__sub_I_locale_inst.cc
+0000000000004dd0 0000000000000108 t _GLOBAL__sub_I_wlocale_inst.cc
+0000000000004ee0 0000000000000204 t _GLOBAL__sub_I_eh_alloc.cc
+00000000000050f0 0000000000000038 t _GLOBAL__sub_I_eh_globals.cc
+0000000000005130 000000000000007c t _GLOBAL__sub_I_b2_block_allocator.cpp
+00000000000051b0 000000000000000c t _GLOBAL__sub_I_b2_math.cpp
+00000000000051c0 t __do_global_dtors_aux
+0000000000005210 t frame_dummy
+0000000000005240 0000000000000024 t InicializarEnemigo(Enemigo&, SDL_Renderer*, char const*, int, int) [clone .part.0]
+0000000000005240 0000000000000024 t InicializarProyectil2(Proyectil&, SDL_Renderer*, char const*, int, int, SDL_Rect const*) [clone .part.0]
+0000000000005270 0000000000000064 T InicializarEnemigo(Enemigo&, SDL_Renderer*, char const*, int, int)
+00000000000052e0 0000000000000054 T MoverEnemigoHaciaElJugador(Enemigo&, SDL_Rect const*, double)
+0000000000005340 0000000000000034 T LiberarMemoriaGoblins()
+0000000000005380 000000000000003c T LiberarMemoriaDemons()
+00000000000053c0 0000000000000064 T render_text(SDL_Renderer*, char const*, _TTF_Font*, SDL_Color, SDL_Rect*)
 0000000000005430 0000000000000064 T detectarColisionProyectilEnemigo(Proyectil const&, Enemigo const&)
 00000000000054a0 000000000000007c t _Mix_remove_all_effects
 0000000000005520 0000000000000044 t _Mix_channel_done_playing
@@ -18686,7 +18685,7 @@
 000000000078bf16 r __eh_frame_hdr_end
 000000000078bf16 r __eh_frame_hdr_start
 000000000078bf18 r __EH_FRAME_BEGIN__
-000000000085b068 r __FRAME_END__
+000000000085b060 r __FRAME_END__
 000000000085c000 d __frame_dummy_init_array_entry
 000000000085c000 d __init_array_start
 000000000085c000 d __preinit_array_end

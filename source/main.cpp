@@ -275,15 +275,6 @@ void InicializarProyectil2(Proyectil& proyectil, SDL_Renderer* renderer, const c
     // Establece la velocidad del proyectil
     proyectil.velocidad = 8.0; // Puedes ajustar la velocidad según lo necesites
 
-    // Calcula la dirección del proyectil hacia el enemigo
-    double direccionX = enemigo.pos.x - jugadorPosicion->x;
-    double direccionY = enemigo.pos.y - jugadorPosicion->y;
-
-    // Normaliza la dirección del proyectil
-    double magnitud = sqrt(direccionX * direccionX + direccionY * direccionY);
-    proyectil.direccion.x = direccionX / magnitud;
-    proyectil.direccion.y = direccionY / magnitud;
-
     proyectil.activo = true;
 }
 
@@ -313,7 +304,7 @@ void MoverProyectilAlJugador(Proyectil& proyectil, const SDL_Rect* jugador, doub
 
 
 // Función para mover un proyectil hacia el enemigo
-void MoverProyectilAlEnemigo(Proyectil& proyectil, Enemigo* enemigo, double velocidad) {
+void MoverProyectilAlEnemigo(Proyectil& proyectil, Enemigo enemigo, double velocidad) {
     // Calculamos el vector dirección hacia el enemigo
     double direccion_x = enemigo.pos.x - proyectil.pos.x;
     double direccion_y = enemigo.pos.y - proyectil.pos.y;
@@ -661,8 +652,10 @@ int main(int argc, char** argv)
 
         if (cooldownProyectil > 0) {
             cooldownProyectil--;
-
             
+
+            MoverProyectilAlEnemigo(proyectilJugador, goblin, 8.0); // 5.0 es la velocidad del proyectil, ajusta según lo necesites
+
 
             // Detectar colisión del proyectil con el enemigo goblin
             if (detectarColisionProyectilEnemigo(proyectilJugador, goblin)) {
@@ -678,7 +671,7 @@ int main(int argc, char** argv)
 
         if (cooldownProyectil == 0) {
             InicializarProyectil2(proyectilJugador, renderer, "data/bomb_f0.png", jugadorPosicion.x , jugadorPosicion.y, &jugadorPosicion);
-            MoverProyectilAlEnemigo(proyectilJugador, &goblin, 8.0); // 5.0 es la velocidad del proyectil, ajusta según lo necesites
+            //MoverProyectilAlEnemigo(proyectilJugador, goblin, 8.0); // 5.0 es la velocidad del proyectil, ajusta según lo necesites
             
             Mix_PlayChannel(-1, sound[0], 0); // SONIDITO DE DISPARO OH
             helloworld_tex = render_text(renderer, "MISIL DISPARADO RAHHH", font, white, &helloworld_rect);
