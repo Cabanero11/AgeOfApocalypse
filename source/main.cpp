@@ -61,6 +61,8 @@ struct Enemigo {
     SDL_Texture* texture;   // Textura del enemigo
     SDL_Rect pos;           // Posición del enemigo
     Coordenada coord;       // Coordenadas del enemigo
+    double life;            // Puntos de vida del enemigo
+    bool isAlive;           // Indica si el enemigo está con vida
 };
 
 // Función para inicializar un enemigo
@@ -73,7 +75,7 @@ void InicializarEnemigo(Enemigo& enemigo, SDL_Renderer* renderer, const char* fi
 
     // Posicionar el enemigo a la derecha del jugador
     // 32 es el tamaño del pixel art del enemigo
-    enemigo.pos = { x + 15, y, 26, 26 };
+    enemigo.pos = { x + 15, y, 32, 32 };
 
     enemigo.coord = { (double)x, (double)y };
 }
@@ -171,6 +173,14 @@ void LiberarMemoriaDemons() {
     }
 }
 
+/*
+void LiberarMemoriaOleada(int numeroOleada) {
+    for(int i = 0; i < oleadas[numeroOleada][].length; i++) {
+        SDL_DestroyTexture(oleadas[numeroOleada][i].texture);
+    }
+}
+*/
+
 // Para crear 8 puntos en un circulo fuera de la pantalla
 void calcularPosicionesSpawn(int posicionesSpawn[], int anchoPantalla, int altoPantalla) {
     const int cantidadPuntos = 8; // Cantidad de puntos de spawn
@@ -212,70 +222,130 @@ SDL_Texture* render_time(SDL_Renderer* renderer, TTF_Font* font, const char* tim
 }
 
 
+// #######################################################################################################
+// PROYECTILES                              PROYECTILES                    PROYECTILES                  //
+// #######################################################################################################
 
-/// PROYECTILES
 
-
-struct ProyectilMagico {
-    SDL_Texture* texture;   // Textura del proyectil mágico
-    SDL_Rect pos;           // Posición del proyectil mágico
-    Coordenada direccion;   // Dirección del proyectil mágico
-    double velocidad;       // Velocidad del proyectil mágico
+struct Proyectil {
+    SDL_Texture* texture;   // Textura del proyectil
+    SDL_Rect pos;           // Posición del proyectil
+    Coordenada direccion;   // Dirección del proyectil
+    double velocidad;       // Velocidad del proyectil
+    bool activo;            // Indica si el proyectil está activo o no
 };
 
-ProyectilMagico crearProyectilMagico(SDL_Renderer* renderer, const SDL_Rect* jugadorPosicion, Enemigo* enemigos) {
-    ProyectilMagico proyectil;
-
+// Función para inicializar un proyectil desde el jugador hacia un enemigo
+void InicializarProyectil(Proyectil& proyectil,const SDL_Rect* jugadorPosicion, const Enemigo& enemigo) {
     // Inicializa la posición del proyectil en la posición actual del jugador
     proyectil.pos.x = jugadorPosicion->x;
     proyectil.pos.y = jugadorPosicion->y;
 
-    // Establece la velocidad del proyectil
-    proyectil.velocidad = 4.0; // Puedes ajustar la velocidad según lo necesites
-
-    // Carga la textura del proyectil mágico (asegúrate de tener la textura adecuada)
-    proyectil.texture = IMG_LoadTexture(renderer, "data/bomb_f0.png");
-
-    return proyectil;
-}
-
-void dispararProyectilMagico(SDL_Renderer* renderer, const SDL_Rect* jugadorPosicion, Enemigo* enemigoMasCercano) {
-    ProyectilMagico proyectil = crearProyectilMagico(renderer, jugadorPosicion, enemigoMasCercano);
-
-    // Calcula la dirección del proyectil basándose en el enemigo más cercano
-    double direccionX = enemigoMasCercano->pos.x - proyectil.pos.x;
-    double direccionY = enemigoMasCercano->pos.y - proyectil.pos.y;
+    // Calcula la dirección del proyectil hacia el enemigo
+    double direccionX = enemigo.pos.x - jugadorPosicion->x;
+    double direccionY = enemigo.pos.y - jugadorPosicion->y;
 
     // Normaliza la dirección del proyectil
     double magnitud = sqrt(direccionX * direccionX + direccionY * direccionY);
     proyectil.direccion.x = direccionX / magnitud;
     proyectil.direccion.y = direccionY / magnitud;
 
-    // Por ahora, simplemente dibujaremos el proyectil en la pantalla
-    SDL_RenderCopy(renderer, proyectil.texture, NULL, &proyectil.pos);
+    // Establece la velocidad del proyectil
+    proyectil.velocidad = 8.0; // Puedes ajustar la velocidad según lo necesites
+
+    // Carga la textura del proyectil (asegúrate de tener la textura adecuada)
+    proyectil.texture = IMG_LoadTexture(renderer, "data/bomb_f0.png");
+
+    // Activa el proyectil
+    proyectil.activo = true;
+}
+
+
+// Función para inicializar un enemigo
+void InicializarProyectil2(Proyectil& proyectil, SDL_Renderer* renderer, const char* filename, int x, int y, const SDL_Rect* jugadorPosicion) {
+    proyectil.texture = IMG_LoadTexture(renderer, filename);
+    if (!proyectil.texture) {
+        printf("Error cargando la textura del enemigo: %s\n", IMG_GetError());
+        exit(EXIT_FAILURE);
+    }
+
+    // 32 es el tamaño del proyectil art del enemigo
+    proyectil.pos = { x + 10, y + 10, 32, 32 };
+
+    // Establece la velocidad del proyectil
+    proyectil.velocidad = 8.0; // Puedes ajustar la velocidad según lo necesites
+
+    // Calcula la dirección del proyectil hacia el enemigo
+    double direccionX = enemigo.pos.x - jugadorPosicion->x;
+    double direccionY = enemigo.pos.y - jugadorPosicion->y;
+
+    // Normaliza la dirección del proyectil
+    double magnitud = sqrt(direccionX * direccionX + direccionY * direccionY);
+    proyectil.direccion.x = direccionX / magnitud;
+    proyectil.direccion.y = direccionY / magnitud;
+
+    proyectil.activo = true;
+}
+
+// Función para dibujar un proyectil en el renderer
+void DibujarProyectil(SDL_Renderer* renderer, const Proyectil& proyectil) {
+    if (proyectil.activo) {
+        SDL_RenderCopy(renderer, proyectil.texture, NULL, &proyectil.pos);
+    }
+}
+
+
+// Función para mover un proyectil hacia el jugador
+void MoverProyectilAlJugador(Proyectil& proyectil, const SDL_Rect* jugador, double velocidad) {
+    // Calculamos el vector dirección hacia el jugador
+    double direccion_x = jugador->x - proyectil.pos.x;
+    double direccion_y = jugador->y - proyectil.pos.y;
+
+    // Normalizamos el vector dirección
+    double longitud = sqrt(direccion_x * direccion_x + direccion_y * direccion_y);
+    direccion_x /= longitud;
+    direccion_y /= longitud;
+
+    // Movemos el proyectil en la dirección hacia el jugador con la velocidad especificada
+    proyectil.pos.x += (int)(direccion_x * velocidad);
+    proyectil.pos.y += (int)(direccion_y * velocidad);
+}
+
+
+// Función para mover un proyectil hacia el enemigo
+void MoverProyectilAlEnemigo(Proyectil& proyectil, Enemigo* enemigo, double velocidad) {
+    // Calculamos el vector dirección hacia el enemigo
+    double direccion_x = enemigo.pos.x - proyectil.pos.x;
+    double direccion_y = enemigo.pos.y - proyectil.pos.y;
+
+    // Normalizamos el vector dirección
+    double longitud = sqrt(direccion_x * direccion_x + direccion_y * direccion_y);
+    direccion_x /= longitud;
+    direccion_y /= longitud;
+
+    // Movemos el proyectil en la dirección hacia el enemigo con la velocidad especificada
+    proyectil.pos.x += (int)(direccion_x * velocidad);
+    proyectil.pos.y += (int)(direccion_y * velocidad);
+}
+
+// Función para detectar colisión entre un proyectil y un enemigo
+bool detectarColisionProyectilEnemigo(const Proyectil& proyectil, const Enemigo& enemigo) {
+    if (proyectil.activo) {
+        // Verificar si las coordenadas del proyectil y del enemigo se superponen
+        if (proyectil.pos.x < enemigo.pos.x + enemigo.pos.w &&
+            proyectil.pos.x + proyectil.pos.w > enemigo.pos.x &&
+            proyectil.pos.y < enemigo.pos.y + enemigo.pos.h &&
+            proyectil.pos.y + proyectil.pos.h > enemigo.pos.y) {
+            // Colisión detectada
+            return true;
+        }
+    }
+    return false;
 }
 
 
 
 
-
-
-// VARIABLES DE ANIMACION
-
-const char* idleJugador[] = {
-    "data/pumpkin_dude/pumpkin_dude_idle_anim_f0.png",
-    "data/pumpkin_dude/pumpkin_dude_idle_anim_f1.png",
-    "data/pumpkin_dude/pumpkin_dude_idle_anim_f2.png",
-    "data/pumpkin_dude/pumpkin_dude_idle_anim_f3.png"
-};
-
-
-const char* runJugador[] = {
-    "data/pumpkin_dude/pumpkin_dude_run_anim_f0.png",
-    "data/pumpkin_dude/pumpkin_dude_run_anim_f1.png",
-    "data/pumpkin_dude/pumpkin_dude_run_anim_f2.png",
-    "data/pumpkin_dude/pumpkin_dude_run_anim_f3.png"
-};
 
 
 
@@ -287,11 +357,6 @@ enum EstadoJugador {
     RUN,
     MUERTE
 };
-
-
-
-
-
 
 
 EstadoJugador estadoJugador = IDLE;
@@ -493,6 +558,7 @@ int main(int argc, char** argv)
     
     // INICIALIZAR UN PROYECTIL DESDE EL JUGADOR
 
+    Proyectil proyectilJugador;
     
     
     
@@ -564,6 +630,7 @@ int main(int argc, char** argv)
         
         // MOVIMIENTO DEL PROYECTIL
 
+
         // DETECTAR COLISIONES CON EL JUGADOR
 
         // goblin solito :(
@@ -588,33 +655,31 @@ int main(int argc, char** argv)
             }
         }
 
-
+        // ##################
+        // COOLDOWN PROYECTIL
+        // ##################
 
         if (cooldownProyectil > 0) {
             cooldownProyectil--;
-            //helloworld_tex = render_text(renderer, "MISIL COOLDOWN JOO", font, white, &helloworld_rect);
-        }
 
-        double distanciaMinima = 1.0f;
-        Enemigo* enemigoMasCercano;
-        // Itera sobre todos los enemigos
-        for (int i = 0; i < 8; ++i) {
-            // Calcula la distancia entre el jugador y el enemigo actual
-            double distanciaActual = distancia(Coordenada{jugadorPosicion.x, jugadorPosicion.y}, {enemigosGoblins[i].pos.x, enemigosGoblins[i].pos.y});
+            
 
-            // Si la distancia actual es menor que la distancia mínima encontrada hasta ahora
-            if (distanciaActual < distanciaMinima) {
-                // Actualiza la distancia mínima
-                distanciaMinima = distanciaActual;
-                // Actualiza el puntero al enemigo más cercano
-                enemigoMasCercano = &enemigosGoblins[i];
+            // Detectar colisión del proyectil con el enemigo goblin
+            if (detectarColisionProyectilEnemigo(proyectilJugador, goblin)) {
+                // Aquí puedes realizar acciones como eliminar el proyectil y dañar al enemigo goblin
+                // Por ejemplo:
+                // proyectilJugador.activo = false;
+                // enemigoMasCercano->vida -= dañoProyectil;
+                helloworld_tex = render_text(renderer, "MISIL IMPACTO YIPIII", font, green, &helloworld_rect);
             }
         }
 
-        if (cooldownProyectil == 0) {
-            dispararProyectilMagico(renderer, &jugadorPosicion, &goblin);
-            
+       
 
+        if (cooldownProyectil == 0) {
+            InicializarProyectil2(proyectilJugador, renderer, "data/bomb_f0.png", jugadorPosicion.x , jugadorPosicion.y, &jugadorPosicion);
+            MoverProyectilAlEnemigo(proyectilJugador, &goblin, 8.0); // 5.0 es la velocidad del proyectil, ajusta según lo necesites
+            
             Mix_PlayChannel(-1, sound[0], 0); // SONIDITO DE DISPARO OH
             helloworld_tex = render_text(renderer, "MISIL DISPARADO RAHHH", font, white, &helloworld_rect);
             cooldownProyectil = COOLDOWNProyectil_MAX; // Establece el cooldownProyectil original
@@ -651,6 +716,7 @@ int main(int argc, char** argv)
         SDL_RenderCopy(renderer, backgroundTexture, NULL, NULL);
 
 
+        DibujarProyectil(renderer, proyectilJugador);
 
         // Dibujar el enemigo (goblin)
         DibujarEnemigo(renderer, goblin);
