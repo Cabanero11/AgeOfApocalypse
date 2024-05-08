@@ -479,13 +479,13 @@ int main(int argc, char** argv)
 
     int posicionesDemons[][2] = {
         { jugadorPosicion.x + 850, jugadorPosicion.y + 0 },
-        { jugadorPosicion.x + 850, jugadorPosicion.y + 200 },
-        { jugadorPosicion.x - 850, jugadorPosicion.y + 120 },
+        { jugadorPosicion.x + 850, jugadorPosicion.y + 500 },
+        { jugadorPosicion.x - 850, jugadorPosicion.y + 620 },
         { jugadorPosicion.x - 850, jugadorPosicion.y - 550 },
         { jugadorPosicion.x + 0, jugadorPosicion.y + 840 },
-        { jugadorPosicion.x + 300, jugadorPosicion.y - 180 },
+        { jugadorPosicion.x + 500, jugadorPosicion.y - 280 },
         { jugadorPosicion.x + 0, jugadorPosicion.y - 210 },
-        { jugadorPosicion.x - 300, jugadorPosicion.y - 200 }
+        { jugadorPosicion.x - 500, jugadorPosicion.y - 300 }
     };
     
 
@@ -510,7 +510,9 @@ int main(int argc, char** argv)
 
     while (!exit_requested && appletMainLoop()) 
     {
+        /*
         SDL_Event event;
+        
         while (SDL_PollEvent(&event)) 
         {
             if (event.type == SDL_QUIT)
@@ -550,7 +552,7 @@ int main(int argc, char** argv)
                     Mix_PlayChannel(-1, sound[3], 0);
             }
         } // FIN BUCLE EVENTOS
-
+        */
 
         
         // Dentro del bucle principal, calcular los minutos y segundos en función del número total de fotogramas
@@ -563,38 +565,26 @@ int main(int argc, char** argv)
         int y = SDL_JoystickGetAxis(joystick, 1);
 
         // Determinar los movimientos en función de la entrada del joystick
-        if (x < -joystick_deadzone) {
-            move_left = true;
-        } else if (x > joystick_deadzone) {
-            move_right = true;
+        if (x < -joystick_deadzone && jugadorPosicion.x >= 80) {
+            jugadorPosicion.x -= velocidadMovimiento;
+        } else if (x > joystick_deadzone && jugadorPosicion.x <= 1180) {
+            jugadorPosicion.x += velocidadMovimiento;
         }
 
-        if (y < -joystick_deadzone) {
-            move_up = true;
-        } else if (y > joystick_deadzone) {
-            move_down = true;
+        if (y < -joystick_deadzone && jugadorPosicion.y >= 46) {
+            jugadorPosicion.y -= velocidadMovimiento;
+        } else if (y > joystick_deadzone && jugadorPosicion.y <= 650) {
+            jugadorPosicion.y += velocidadMovimiento;
         }
 
 
         // Actualizar la posición del personaje en función del estado de los botones
         switch (estadoJugador) {
             case IDLE:
-                // Lógica para el estado idle
-                // Detener el movimiento si no hay entrada del joystick
-                move_left = false;
-                move_right = false;
-                move_up = false;
-                move_down = false;
                 break;
             case RUN:
-                if (move_up && jugadorPosicion.y >= 46)
-                    jugadorPosicion.y -= velocidadMovimiento;
-                if (move_down && jugadorPosicion.y <= 650)
-                    jugadorPosicion.y += velocidadMovimiento;
-                if (move_left && jugadorPosicion.x >= 80)
-                    jugadorPosicion.x -= velocidadMovimiento;
-                if (move_right && jugadorPosicion.x <= 1180)
-                    jugadorPosicion.x += velocidadMovimiento;
+
+                    
                 // Lógica para el estado run
                 break;
             case MUERTE:
@@ -610,7 +600,7 @@ int main(int argc, char** argv)
         MoverEnemigoHaciaElJugador(goblin, &jugadorPosicion, 5.0f);
 
         // Mover 8 goblins hacia el jugador
-        if(current_minutes <= 4 && current_seconds <= 50) {
+        if(current_minutes <= 4 && current_seconds <= 55) {
             for(int i = 0; i < 8; i++) {
                 MoverEnemigoHaciaElJugador(enemigosGoblins[i], &jugadorPosicion, 5.0f);
             }
@@ -675,7 +665,7 @@ int main(int argc, char** argv)
         }
 
         if (cooldownProyectil == 0) {
-            dispararProyectilMagico(renderer, &jugadorPosicion, enemigoMasCercano);
+            dispararProyectilMagico(renderer, &jugadorPosicion, &goblin);
             Mix_PlayChannel(-1, sound[0], 0); // SONIDITO DE DISPARO OH
             helloworld_tex = render_text(renderer, "MISIL DISPARADO RAHHH", font, white, &helloworld_rect);
             cooldownProyectil = COOLDOWNProyectil_MAX; // Establece el cooldownProyectil original
