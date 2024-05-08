@@ -616,6 +616,26 @@ bool detectarColisionProyectilEnemigo(const Proyectil& proyectil, const Enemigo&
     return false;
 }
 
+bool detectarColisionProyectilEnemigoOleadas(const Proyectil& proyectil, const Enemigo oleadas[][8], int numOleadas) {
+    if (proyectil.activo) {
+        // Iterar sobre todas las oleadas y enemigos dentro de cada oleada
+        for (int i = 0; i < numOleadas; i++) {
+            for (int j = 0; j < 8; j++) {
+                const Enemigo& enemigo = oleadas[i][j];
+                // Verificar si las coordenadas del proyectil y del enemigo se superponen
+                if (proyectil.pos.x < enemigo.pos.x + enemigo.pos.w &&
+                    proyectil.pos.x + proyectil.pos.w > enemigo.pos.x &&
+                    proyectil.pos.y < enemigo.pos.y + enemigo.pos.h &&
+                    proyectil.pos.y + proyectil.pos.h > enemigo.pos.y) {
+                    // Colisión detectada con un enemigo
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
 
 
 
@@ -715,6 +735,11 @@ int main(int argc, char** argv)
 
     SDL_Rect gameOverRect = { (SCREEN_W / 2) - 80, (SCREEN_H  / 2) + 80, 0, 0 };
     SDL_Texture* gameOverTexture;
+
+
+    // EL PEPE
+    SDL_Rect proyectilPuntoImpact = { (SCREEN_W / 2) - 80, (SCREEN_H  / 2) + 80, 0, 0 };
+    SDL_Texture* proyectilImpacto;
 
     // JOYSTICK
 
