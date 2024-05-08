@@ -72,7 +72,8 @@ void InicializarEnemigo(Enemigo& enemigo, SDL_Renderer* renderer, const char* fi
     }
 
     // Posicionar el enemigo a la derecha del jugador
-    enemigo.pos = { x + 15, y, 16, 16 };
+    // 32 es el tamaño del pixel art del enemigo
+    enemigo.pos = { x + 15, y, 26, 26 };
 
     enemigo.coord = { (double)x, (double)y };
 }
@@ -222,18 +223,26 @@ struct ProyectilMagico {
     double velocidad;       // Velocidad del proyectil mágico
 };
 
-ProyectilMagico crearProyectilMagico(SDL_Renderer* renderer, const SDL_Rect* jugadorPosicion, Enemigo* enemigos) {
-    ProyectilMagico proyectil;
+// Función para crear un proyectil
+Proyectil crearProyectil(SDL_Renderer* renderer, const SDL_Rect* jugadorPosicion, const SDL_Rect* enemigoPosicion, double velocidad) {
+    Proyectil proyectil;
 
     // Inicializa la posición del proyectil en la posición actual del jugador
     proyectil.pos.x = jugadorPosicion->x;
     proyectil.pos.y = jugadorPosicion->y;
 
-    // Establece la velocidad del proyectil
-    proyectil.velocidad = 4.0; // Puedes ajustar la velocidad según lo necesites
+    // Calcula la dirección del proyectil como un vector unitario que apunta hacia el enemigo
+    double direccionX = enemigoPosicion->x - jugadorPosicion->x;
+    double direccionY = enemigoPosicion->y - jugadorPosicion->y;
+    double magnitud = sqrt(direccionX * direccionX + direccionY * direccionY);
+    proyectil.direccion.x = direccionX / magnitud;
+    proyectil.direccion.y = direccionY / magnitud;
 
-    // Carga la textura del proyectil mágico (asegúrate de tener la textura adecuada)
-    proyectil.texture = IMG_LoadTexture(renderer, "data/bomb_f0.png");
+    // Establece la velocidad del proyectil
+    proyectil.velocidad = velocidad;
+
+    // Carga la textura del proyectil (asegúrate de tener la textura adecuada)
+    proyectil.texture = IMG_LoadTexture(renderer, "ruta/a/la/textura.png");
 
     return proyectil;
 }
@@ -289,19 +298,8 @@ enum EstadoJugador {
 
 
 
-// VARIABLES ANIMACION
-/*
-// Declarar la variable animacionJugador antes de su uso
-Animacion animacionJugador;
 
-const char* animacionJugadorFrames[4] = {
-    "data/pumpkin_dude/pumpkin_dude_idle_anim_f0.png",
-    "data/pumpkin_dude/pumpkin_dude_idle_anim_f1.png",
-    "data/pumpkin_dude/pumpkin_dude_idle_anim_f2.png",
-    "data/pumpkin_dude/pumpkin_dude_idle_anim_f3.png"
-};
 
-*/
 
 
 EstadoJugador estadoJugador = IDLE;
@@ -404,7 +402,7 @@ int main(int argc, char** argv)
     SDL_Surface* jugadorSurface = IMG_Load("data/pumpkin_dude/pumpkin_dude_idle_anim_f0.png");
     // Multiplica las dimensiones originales del sprite por un factor de escala (por ejemplo, 2 para duplicar el tamaño)
     SDL_Texture* jugadorTextura = SDL_CreateTextureFromSurface(renderer, jugadorSurface);               //jugadorSurface->w * 2 Para x2 tamaño
-    SDL_Rect jugadorPosicion = { SCREEN_W / 2 - jugadorSurface->w, SCREEN_H / 2 - jugadorSurface->h, jugadorSurface->w,  jugadorSurface->h};
+    SDL_Rect jugadorPosicion = { SCREEN_W / 2 - jugadorSurface->w, SCREEN_H / 2 - jugadorSurface->h, jugadorSurface->w * 1.5,  jugadorSurface->h * 1.5};
     SDL_FreeSurface(jugadorSurface);
 
 
@@ -464,16 +462,17 @@ int main(int argc, char** argv)
     Enemigo goblin;
     InicializarEnemigo(goblin, renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 300, jugadorPosicion.y);
 
+
     //Enemigo enemigosGoblins[8];
 
     InicializarEnemigo(enemigosGoblins[0], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 650, jugadorPosicion.y + 0);
     InicializarEnemigo(enemigosGoblins[1], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 650, jugadorPosicion.y + 100);
-    InicializarEnemigo(enemigosGoblins[2], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 650, jugadorPosicion.y + 20);
+    InicializarEnemigo(enemigosGoblins[2], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 650, jugadorPosicion.y + 150);
     InicializarEnemigo(enemigosGoblins[3], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 650, jugadorPosicion.y - 450);
     InicializarEnemigo(enemigosGoblins[4], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y + 740);
-    InicializarEnemigo(enemigosGoblins[5], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 100, jugadorPosicion.y + -80);
-    InicializarEnemigo(enemigosGoblins[6], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y - 20);
-    InicializarEnemigo(enemigosGoblins[7], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 100, jugadorPosicion.y + -100);
+    InicializarEnemigo(enemigosGoblins[5], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 200, jugadorPosicion.y + -80);
+    InicializarEnemigo(enemigosGoblins[6], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y - 200);
+    InicializarEnemigo(enemigosGoblins[7], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 200, jugadorPosicion.y + -200);
 
     // ENEMIGO DEMONS
 
@@ -510,50 +509,6 @@ int main(int argc, char** argv)
 
     while (!exit_requested && appletMainLoop()) 
     {
-        /*
-        SDL_Event event;
-        
-        while (SDL_PollEvent(&event)) 
-        {
-            if (event.type == SDL_QUIT)
-                exit_requested = 1;
-
-            // Manejar el movimiento continuo mientras se mantiene pulsado el botón
-            if (event.type == SDL_JOYBUTTONDOWN) 
-            {
-                if (event.jbutton.button == JOY_UP)
-                    move_up = true;
-                else if (event.jbutton.button == JOY_DOWN)
-                    move_down = true;
-                else if (event.jbutton.button == JOY_LEFT)
-                    move_left = true;
-                else if (event.jbutton.button == JOY_RIGHT)
-                    move_right = true;
-            }
-
-            // Manejar la interrupción del movimiento cuando se suelta el botón
-            if (event.type == SDL_JOYBUTTONUP) 
-            {
-                if (event.jbutton.button == JOY_UP)
-                    move_up = false;
-                else if (event.jbutton.button == JOY_DOWN)
-                    move_down = false;
-                else if (event.jbutton.button == JOY_LEFT)
-                    move_left = false;
-                else if (event.jbutton.button == JOY_RIGHT)
-                    move_right = false;
-            }
-
-            if(event.type == SDL_JOYBUTTONDOWN) 
-            {
-                if(event.jbutton.button == JOY_A)
-                    Mix_PlayChannel(-1, sound[0], 0);
-                else if(event.jbutton.button == JOY_B)
-                    Mix_PlayChannel(-1, sound[3], 0);
-            }
-        } // FIN BUCLE EVENTOS
-        */
-
         
         // Dentro del bucle principal, calcular los minutos y segundos en función del número total de fotogramas
         int current_minutes = total_frames / frames_per_minute;
@@ -609,7 +564,7 @@ int main(int argc, char** argv)
         
         
         // Mover 8 demons hacia el jugador tras 30 segundos
-        if(current_minutes <= 4 && current_seconds <= 20) {
+        if(current_minutes <= 4 && current_seconds <= 30) {
             for(int i = 0; i < 8; i++) {
                 MoverEnemigoHaciaElJugador(enemigosBigDemon[i], &jugadorPosicion, 5.0f);
             }
@@ -666,6 +621,8 @@ int main(int argc, char** argv)
 
         if (cooldownProyectil == 0) {
             dispararProyectilMagico(renderer, &jugadorPosicion, &goblin);
+            
+
             Mix_PlayChannel(-1, sound[0], 0); // SONIDITO DE DISPARO OH
             helloworld_tex = render_text(renderer, "MISIL DISPARADO RAHHH", font, white, &helloworld_rect);
             cooldownProyectil = COOLDOWNProyectil_MAX; // Establece el cooldownProyectil original
@@ -680,6 +637,8 @@ int main(int argc, char** argv)
             gameOverTexture = render_text(renderer, "GAME OVER", font, red, &gameOverRect);
             // LINEA ABAJO CIERRA EL JUEGO DIRECTAMENTE
             //exit_requested = 1;
+        } else if(current_minutes <= 0 && current_seconds <= 0) {
+            gameOverTexture = render_text(renderer, "YOU HAVE SURVIDED", font, red, &gameOverRect);
         }
 
 
