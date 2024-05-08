@@ -17,11 +17,15 @@
 
 // LAS CONSTANTES SE DEFINEN EN constantes.h
 
+bool partidaAcabada = false;
+
 // Variables de movimiento
 bool move_up = false;
 bool move_down = false;
 bool move_left = false;
 bool move_right = false;
+
+SDL_Rect jugadorPosicion;
 
 float velocidadMovimiento = 5.0f;
 
@@ -65,8 +69,12 @@ struct Enemigo {
     bool isAlive;           // Indica si el enemigo está con vida
 };
 
+// VIDA ENEMIGOS
+double vidaGoblin = 20;
+double vidaDemon = 30;
+
 // Función para inicializar un enemigo
-void InicializarEnemigo(Enemigo& enemigo, SDL_Renderer* renderer, const char* filename, int x, int y) {
+void InicializarEnemigo(Enemigo& enemigo, SDL_Renderer* renderer, const char* filename, int x, int y, double vida) {
     enemigo.texture = IMG_LoadTexture(renderer, filename);
     if (!enemigo.texture) {
         printf("Error cargando la textura del enemigo: %s\n", IMG_GetError());
@@ -78,7 +86,294 @@ void InicializarEnemigo(Enemigo& enemigo, SDL_Renderer* renderer, const char* fi
     enemigo.pos = { x + 15, y, 32, 32 };
 
     enemigo.coord = { (double)x, (double)y };
+
+    
+    enemigo.life = vida;
+
+    enemigo.isAlive = true;
 }
+
+//#####################################################################################################
+// DEFINIR OLEADAS OLEADAS OLEADAS OLEADAS
+//#####################################################################################################
+
+Enemigo oleadas[17][8]; // 18 oleadas, una cada 15 segundos a partir del 4:30. Cada oleada tendrá 8 enemigos
+int contadorOleada = 0;
+int oleadasVivas[17];
+int cantidadOleadasVivas = 0;
+bool generandoOleada = false;
+bool oleada1generada = false;
+bool oleada2generada = false;
+bool oleada3generada = false;
+bool oleada4generada = false;
+bool oleada5generada = false;
+bool oleada6generada = false;
+bool oleada7generada = false;
+bool oleada8generada = false;
+bool oleada9generada = false;
+bool oleada10generada = false;
+bool oleada11generada = false;
+bool oleada12generada = false;
+bool oleada13generada = false;
+bool oleada14generada = false;
+bool oleada15generada = false;
+bool oleada16generada = false;
+bool oleada17generada = false;
+bool oleada18generada = false;
+
+Enemigo enemigosGoblins[8];
+Enemigo enemigosBigDemon[16];
+
+#define NUM_ENEMIGOS_DEMON 16
+#define NUM_OLEADAS_DEMON 2
+
+void InicializarOleada(int numeroOleada){
+    if (!generandoOleada) 
+    {
+        generandoOleada = true;
+
+        if (numeroOleada == 1 && !oleada1generada) {
+            oleada1generada = true;
+            InicializarEnemigo(oleadas[1][0], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 0 , vidaGoblin);
+            InicializarEnemigo(oleadas[1][1], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 500, vidaGoblin);
+            InicializarEnemigo(oleadas[1][2], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y + 620, vidaGoblin);
+            InicializarEnemigo(oleadas[1][3], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y - 550, vidaGoblin);
+            InicializarEnemigo(oleadas[1][4], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y + 840, vidaGoblin);
+            InicializarEnemigo(oleadas[1][5], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 500, jugadorPosicion.y - 280, vidaGoblin);
+            InicializarEnemigo(oleadas[1][6], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y - 210, vidaGoblin);
+            InicializarEnemigo(oleadas[1][7], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 500, jugadorPosicion.y - 300, vidaGoblin);
+            contadorOleada++;
+            oleadasVivas[cantidadOleadasVivas] = 1;
+            cantidadOleadasVivas++;
+        } else if (numeroOleada == 2 && !oleada2generada) {
+            oleada2generada = true;
+            InicializarEnemigo(oleadas[2][0], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x + 850, jugadorPosicion.y + 0 , vidaDemon);
+            InicializarEnemigo(oleadas[2][1], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x + 850, jugadorPosicion.y + 500, vidaDemon);
+            InicializarEnemigo(oleadas[2][2], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x - 850, jugadorPosicion.y + 620, vidaDemon);
+            InicializarEnemigo(oleadas[2][3], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x - 850, jugadorPosicion.y - 550, vidaDemon);
+            InicializarEnemigo(oleadas[2][4], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x + 0, jugadorPosicion.y + 840, vidaDemon);
+            InicializarEnemigo(oleadas[2][5], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x + 500, jugadorPosicion.y - 280, vidaDemon);
+            InicializarEnemigo(oleadas[2][6], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x + 0, jugadorPosicion.y - 210, vidaDemon);
+            InicializarEnemigo(oleadas[2][7], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x - 500, jugadorPosicion.y - 300, vidaDemon);
+            contadorOleada++;
+            oleadasVivas[cantidadOleadasVivas] = 2;
+            cantidadOleadasVivas++;
+        } else if (numeroOleada == 3 && !oleada3generada) {
+            oleada3generada = true;
+            InicializarEnemigo(oleadas[3][0], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 0 , vidaGoblin);
+            InicializarEnemigo(oleadas[3][1], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 500, vidaGoblin);
+            InicializarEnemigo(oleadas[3][2], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y + 620, vidaGoblin);
+            InicializarEnemigo(oleadas[3][3], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y - 550, vidaGoblin);
+            InicializarEnemigo(oleadas[3][4], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y + 840, vidaGoblin);
+            InicializarEnemigo(oleadas[3][5], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 500, jugadorPosicion.y - 280, vidaGoblin);
+            InicializarEnemigo(oleadas[3][6], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y - 210, vidaGoblin);
+            InicializarEnemigo(oleadas[3][7], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 500, jugadorPosicion.y - 300, vidaGoblin);
+            contadorOleada++;
+            oleadasVivas[cantidadOleadasVivas] = 3;
+            cantidadOleadasVivas++;
+        } else if (numeroOleada == 4 && !oleada4generada) {
+            oleada4generada = true;
+            InicializarEnemigo(oleadas[4][0], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x + 850, jugadorPosicion.y + 0 , vidaDemon);
+            InicializarEnemigo(oleadas[4][1], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x + 850, jugadorPosicion.y + 500, vidaDemon);
+            InicializarEnemigo(oleadas[4][2], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x - 850, jugadorPosicion.y + 620, vidaDemon);
+            InicializarEnemigo(oleadas[4][3], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x - 850, jugadorPosicion.y - 550, vidaDemon);
+            InicializarEnemigo(oleadas[4][4], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x + 0, jugadorPosicion.y + 840, vidaDemon);
+            InicializarEnemigo(oleadas[4][5], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x + 500, jugadorPosicion.y - 280, vidaDemon);
+            InicializarEnemigo(oleadas[4][6], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x + 0, jugadorPosicion.y - 210, vidaDemon);
+            InicializarEnemigo(oleadas[4][7], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x - 500, jugadorPosicion.y - 300, vidaDemon);
+            contadorOleada++;
+            oleadasVivas[cantidadOleadasVivas] = 4;
+            cantidadOleadasVivas++;
+        } else if (numeroOleada == 5 && !oleada5generada) {
+            oleada5generada = true;
+            InicializarEnemigo(oleadas[5][0], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 0 , vidaGoblin);
+            InicializarEnemigo(oleadas[5][1], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 500, vidaGoblin);
+            InicializarEnemigo(oleadas[5][2], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y + 620, vidaGoblin);
+            InicializarEnemigo(oleadas[5][3], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y - 550, vidaGoblin);
+            InicializarEnemigo(oleadas[5][4], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y + 840, vidaGoblin);
+            InicializarEnemigo(oleadas[5][5], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 500, jugadorPosicion.y - 280, vidaGoblin);
+            InicializarEnemigo(oleadas[5][6], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y - 210, vidaGoblin);
+            InicializarEnemigo(oleadas[5][7], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 500, jugadorPosicion.y - 300, vidaGoblin);
+            contadorOleada++;
+            oleadasVivas[cantidadOleadasVivas] = 5;
+            cantidadOleadasVivas++;
+        } else if (numeroOleada == 6 && !oleada6generada) {
+            oleada6generada = true;
+            InicializarEnemigo(oleadas[6][0], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x + 850, jugadorPosicion.y + 0 , vidaDemon);
+            InicializarEnemigo(oleadas[6][1], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x + 850, jugadorPosicion.y + 500, vidaDemon);
+            InicializarEnemigo(oleadas[6][2], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x - 850, jugadorPosicion.y + 620, vidaDemon);
+            InicializarEnemigo(oleadas[6][3], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x - 850, jugadorPosicion.y - 550, vidaDemon);
+            InicializarEnemigo(oleadas[6][4], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x + 0, jugadorPosicion.y + 840, vidaDemon);
+            InicializarEnemigo(oleadas[6][5], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x + 500, jugadorPosicion.y - 280, vidaDemon);
+            InicializarEnemigo(oleadas[6][6], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x + 0, jugadorPosicion.y - 210, vidaDemon);
+            InicializarEnemigo(oleadas[6][7], renderer, "data/big_demon/big_demon_idle_anim_f3.png", jugadorPosicion.x - 500, jugadorPosicion.y - 300, vidaDemon);
+            contadorOleada++;
+            oleadasVivas[cantidadOleadasVivas] = 6;
+            cantidadOleadasVivas++;
+        } else if (numeroOleada == 7 && !oleada7generada) {
+            oleada7generada = true;
+            InicializarEnemigo(oleadas[7][0], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 0 , vidaGoblin);
+            InicializarEnemigo(oleadas[7][1], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 500, vidaGoblin);
+            InicializarEnemigo(oleadas[7][2], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y + 620, vidaGoblin);
+            InicializarEnemigo(oleadas[7][3], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y - 550, vidaGoblin);
+            InicializarEnemigo(oleadas[7][4], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y + 840, vidaGoblin);
+            InicializarEnemigo(oleadas[7][5], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 500, jugadorPosicion.y - 280, vidaGoblin);
+            InicializarEnemigo(oleadas[7][6], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y - 210, vidaGoblin);
+            InicializarEnemigo(oleadas[7][7], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 500, jugadorPosicion.y - 300, vidaGoblin);
+            contadorOleada++;
+            oleadasVivas[cantidadOleadasVivas] = 7;
+            cantidadOleadasVivas++;
+        } else if (numeroOleada == 8 && !oleada8generada) {
+            oleada8generada = true;
+            InicializarEnemigo(oleadas[8][0], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 0 , vidaGoblin);
+            InicializarEnemigo(oleadas[8][1], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 500, vidaGoblin);
+            InicializarEnemigo(oleadas[8][2], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y + 620, vidaGoblin);
+            InicializarEnemigo(oleadas[8][3], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y - 550, vidaGoblin);
+            InicializarEnemigo(oleadas[8][4], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y + 840, vidaGoblin);
+            InicializarEnemigo(oleadas[8][5], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 500, jugadorPosicion.y - 280, vidaGoblin);
+            InicializarEnemigo(oleadas[8][6], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y - 210, vidaGoblin);
+            InicializarEnemigo(oleadas[8][7], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 500, jugadorPosicion.y - 300, vidaGoblin);
+            contadorOleada++;
+            oleadasVivas[cantidadOleadasVivas] = 8;
+            cantidadOleadasVivas++;
+        } else if (numeroOleada == 9 && !oleada9generada) {
+            oleada9generada = true;
+            InicializarEnemigo(oleadas[9][0], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 0 , vidaGoblin);
+            InicializarEnemigo(oleadas[9][1], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 500, vidaGoblin);
+            InicializarEnemigo(oleadas[9][2], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y + 620, vidaGoblin);
+            InicializarEnemigo(oleadas[9][3], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y - 550, vidaGoblin);
+            InicializarEnemigo(oleadas[9][4], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y + 840, vidaGoblin);
+            InicializarEnemigo(oleadas[9][5], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 500, jugadorPosicion.y - 280, vidaGoblin);
+            InicializarEnemigo(oleadas[9][6], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y - 210, vidaGoblin);
+            InicializarEnemigo(oleadas[9][7], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 500, jugadorPosicion.y - 300, vidaGoblin);
+            contadorOleada++;
+            oleadasVivas[cantidadOleadasVivas] = 9;
+            cantidadOleadasVivas++;
+        } else if (numeroOleada == 10 && !oleada10generada) {
+            oleada10generada = true;
+            InicializarEnemigo(oleadas[10][0], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 0 , vidaGoblin);
+            InicializarEnemigo(oleadas[10][1], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 500, vidaGoblin);
+            InicializarEnemigo(oleadas[10][2], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y + 620, vidaGoblin);
+            InicializarEnemigo(oleadas[10][3], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y - 550, vidaGoblin);
+            InicializarEnemigo(oleadas[10][4], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y + 840, vidaGoblin);
+            InicializarEnemigo(oleadas[10][5], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 500, jugadorPosicion.y - 280, vidaGoblin);
+            InicializarEnemigo(oleadas[10][6], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y - 210, vidaGoblin);
+            InicializarEnemigo(oleadas[10][7], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 500, jugadorPosicion.y - 300, vidaGoblin);
+            contadorOleada++;
+            oleadasVivas[cantidadOleadasVivas] = 10;
+            cantidadOleadasVivas++;
+        } else if (numeroOleada == 11 && !oleada11generada) {
+            oleada11generada = true;
+            InicializarEnemigo(oleadas[11][0], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 0 , vidaGoblin);
+            InicializarEnemigo(oleadas[11][1], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 500, vidaGoblin);
+            InicializarEnemigo(oleadas[11][2], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y + 620, vidaGoblin);
+            InicializarEnemigo(oleadas[11][3], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y - 550, vidaGoblin);
+            InicializarEnemigo(oleadas[11][4], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y + 840, vidaGoblin);
+            InicializarEnemigo(oleadas[11][5], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 500, jugadorPosicion.y - 280, vidaGoblin);
+            InicializarEnemigo(oleadas[11][6], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y - 210, vidaGoblin);
+            InicializarEnemigo(oleadas[11][7], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 500, jugadorPosicion.y - 300, vidaGoblin);
+            contadorOleada++;
+            oleadasVivas[cantidadOleadasVivas] = 11;
+            cantidadOleadasVivas++;
+        } else if (numeroOleada == 12 && !oleada12generada) {
+            oleada12generada = true;
+            InicializarEnemigo(oleadas[12][0], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 0 , vidaGoblin);
+            InicializarEnemigo(oleadas[12][1], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 500, vidaGoblin);
+            InicializarEnemigo(oleadas[12][2], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y + 620, vidaGoblin);
+            InicializarEnemigo(oleadas[12][3], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y - 550, vidaGoblin);
+            InicializarEnemigo(oleadas[12][4], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y + 840, vidaGoblin);
+            InicializarEnemigo(oleadas[12][5], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 500, jugadorPosicion.y - 280, vidaGoblin);
+            InicializarEnemigo(oleadas[12][6], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y - 210, vidaGoblin);
+            InicializarEnemigo(oleadas[12][7], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 500, jugadorPosicion.y - 300, vidaGoblin);
+            contadorOleada++;
+            oleadasVivas[cantidadOleadasVivas] = 12;
+            cantidadOleadasVivas++;
+        } else if (numeroOleada == 13 && !oleada13generada) {
+            oleada13generada = true;
+            InicializarEnemigo(oleadas[13][0], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 0 , vidaGoblin);
+            InicializarEnemigo(oleadas[13][1], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 500, vidaGoblin);
+            InicializarEnemigo(oleadas[13][2], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y + 620, vidaGoblin);
+            InicializarEnemigo(oleadas[13][3], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y - 550, vidaGoblin);
+            InicializarEnemigo(oleadas[13][4], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y + 840, vidaGoblin);
+            InicializarEnemigo(oleadas[13][5], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 500, jugadorPosicion.y - 280, vidaGoblin);
+            InicializarEnemigo(oleadas[13][6], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y - 210, vidaGoblin);
+            InicializarEnemigo(oleadas[13][7], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 500, jugadorPosicion.y - 300, vidaGoblin);
+            contadorOleada++;
+            oleadasVivas[cantidadOleadasVivas] = 13;
+            cantidadOleadasVivas++;
+        } else if (numeroOleada == 14 && !oleada14generada) {
+            oleada14generada = true;
+            InicializarEnemigo(oleadas[14][0], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 0 , vidaGoblin);
+            InicializarEnemigo(oleadas[14][1], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 500, vidaGoblin);
+            InicializarEnemigo(oleadas[14][2], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y + 620, vidaGoblin);
+            InicializarEnemigo(oleadas[14][3], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y - 550, vidaGoblin);
+            InicializarEnemigo(oleadas[14][4], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y + 840, vidaGoblin);
+            InicializarEnemigo(oleadas[14][5], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 500, jugadorPosicion.y - 280, vidaGoblin);
+            InicializarEnemigo(oleadas[14][6], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y - 210, vidaGoblin);
+            InicializarEnemigo(oleadas[14][7], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 500, jugadorPosicion.y - 300, vidaGoblin);
+            contadorOleada++;
+            oleadasVivas[cantidadOleadasVivas] = 14;
+            cantidadOleadasVivas++;
+        } else if (numeroOleada == 15 && !oleada15generada) {
+            oleada15generada = true;
+            InicializarEnemigo(oleadas[15][0], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 0 , vidaGoblin);
+            InicializarEnemigo(oleadas[15][1], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 500, vidaGoblin);
+            InicializarEnemigo(oleadas[15][2], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y + 620, vidaGoblin);
+            InicializarEnemigo(oleadas[15][3], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y - 550, vidaGoblin);
+            InicializarEnemigo(oleadas[15][4], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y + 840, vidaGoblin);
+            InicializarEnemigo(oleadas[15][5], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 500, jugadorPosicion.y - 280, vidaGoblin);
+            InicializarEnemigo(oleadas[15][6], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y - 210, vidaGoblin);
+            InicializarEnemigo(oleadas[15][7], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 500, jugadorPosicion.y - 300, vidaGoblin);
+            contadorOleada++;
+            oleadasVivas[cantidadOleadasVivas] = 15;
+            cantidadOleadasVivas++;
+        } else if (numeroOleada == 16 && !oleada16generada) {
+            oleada16generada = true;
+            InicializarEnemigo(oleadas[16][0], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 0 , vidaGoblin);
+            InicializarEnemigo(oleadas[16][1], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 500, vidaGoblin);
+            InicializarEnemigo(oleadas[16][2], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y + 620, vidaGoblin);
+            InicializarEnemigo(oleadas[16][3], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y - 550, vidaGoblin);
+            InicializarEnemigo(oleadas[16][4], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y + 840, vidaGoblin);
+            InicializarEnemigo(oleadas[16][5], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 500, jugadorPosicion.y - 280, vidaGoblin);
+            InicializarEnemigo(oleadas[16][6], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y - 210, vidaGoblin);
+            InicializarEnemigo(oleadas[16][7], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 500, jugadorPosicion.y - 300, vidaGoblin);
+            contadorOleada++;
+            oleadasVivas[cantidadOleadasVivas] = 16;
+            cantidadOleadasVivas++;
+        } else if (numeroOleada == 17 && !oleada17generada) {
+            oleada17generada = true;
+            InicializarEnemigo(oleadas[17][0], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 0 , vidaGoblin);
+            InicializarEnemigo(oleadas[17][1], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 500, vidaGoblin);
+            InicializarEnemigo(oleadas[17][2], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y + 620, vidaGoblin);
+            InicializarEnemigo(oleadas[17][3], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y - 550, vidaGoblin);
+            InicializarEnemigo(oleadas[17][4], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y + 840, vidaGoblin);
+            InicializarEnemigo(oleadas[17][5], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 500, jugadorPosicion.y - 280, vidaGoblin);
+            InicializarEnemigo(oleadas[17][6], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y - 210, vidaGoblin);
+            InicializarEnemigo(oleadas[17][7], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 500, jugadorPosicion.y - 300, vidaGoblin);
+            contadorOleada++;
+            oleadasVivas[cantidadOleadasVivas] = 17;
+            cantidadOleadasVivas++;
+        } else if (numeroOleada == 18 && !oleada18generada) {
+            oleada18generada = true;
+            InicializarEnemigo(oleadas[18][0], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 0 , vidaGoblin);
+            InicializarEnemigo(oleadas[18][1], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 500, vidaGoblin);
+            InicializarEnemigo(oleadas[18][2], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y + 620, vidaGoblin);
+            InicializarEnemigo(oleadas[18][3], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y - 550, vidaGoblin);
+            InicializarEnemigo(oleadas[18][4], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y + 840, vidaGoblin);
+            InicializarEnemigo(oleadas[18][5], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 500, jugadorPosicion.y - 280, vidaGoblin);
+            InicializarEnemigo(oleadas[18][6], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y - 210, vidaGoblin);
+            InicializarEnemigo(oleadas[18][7], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 500, jugadorPosicion.y - 300, vidaGoblin);
+            contadorOleada++;
+            oleadasVivas[cantidadOleadasVivas] = 18;
+            cantidadOleadasVivas++;
+        }
+
+        generandoOleada = false;
+    }
+}
+
+
+
 
 // Función para dibujar un enemigo en elrenderer
 void DibujarEnemigo(SDL_Renderer* renderer, const Enemigo& enemigo) {
@@ -128,17 +423,6 @@ bool detectarColisionJugadorEnemigo(SDL_Rect* jugador, Enemigo& enemigo) {
 }
 
 
-
-// INTENDO DE OLEADAS
-
-
-Enemigo enemigosGoblins[8];
-Enemigo enemigosBigDemon[16];
-
-#define NUM_ENEMIGOS_DEMON 16
-#define NUM_OLEADAS_DEMON 2
-
-
 // NO PASAR &jugadorPosicion sino no persigue al jugador
 void OleadasGoblins(const SDL_Rect* jugadorPosicion) {
     for(int i = 0; i < 1; i++) {
@@ -173,13 +457,11 @@ void LiberarMemoriaDemons() {
     }
 }
 
-/*
 void LiberarMemoriaOleada(int numeroOleada) {
-    for(int i = 0; i < oleadas[numeroOleada][].length; i++) {
+    for(int i = 0; i < 8; i++) {
         SDL_DestroyTexture(oleadas[numeroOleada][i].texture);
     }
 }
-*/
 
 // Para crear 8 puntos en un circulo fuera de la pantalla
 void calcularPosicionesSpawn(int posicionesSpawn[], int anchoPantalla, int altoPantalla) {
@@ -270,7 +552,7 @@ void InicializarProyectil2(Proyectil& proyectil, SDL_Renderer* renderer, const c
     }
 
     // 32 es el tamaño del proyectil art del enemigo
-    proyectil.pos = { x + 10, y + 10, 32, 32 };
+    proyectil.pos = { x + 10, y + 10, 26, 26 };
 
     // Establece la velocidad del proyectil
     proyectil.velocidad = 8.0; // Puedes ajustar la velocidad según lo necesites
@@ -450,7 +732,7 @@ int main(int argc, char** argv)
     SDL_Surface* jugadorSurface = IMG_Load("data/pumpkin_dude/pumpkin_dude_idle_anim_f0.png");
     // Multiplica las dimensiones originales del sprite por un factor de escala (por ejemplo, 2 para duplicar el tamaño)
     SDL_Texture* jugadorTextura = SDL_CreateTextureFromSurface(renderer, jugadorSurface);               //jugadorSurface->w * 2 Para x2 tamaño
-    SDL_Rect jugadorPosicion = { SCREEN_W / 2 - jugadorSurface->w, SCREEN_H / 2 - jugadorSurface->h, jugadorSurface->w * 1.5,  jugadorSurface->h * 1.5};
+    jugadorPosicion = { SCREEN_W / 2 - jugadorSurface->w, SCREEN_H / 2 - jugadorSurface->h, jugadorSurface->w * 1.5,  jugadorSurface->h * 1.5};
     SDL_FreeSurface(jugadorSurface);
 
 
@@ -506,49 +788,15 @@ int main(int argc, char** argv)
     // CREAR ENEMIGOS
     // #######################################
 
-    // ENEMIGO GOBLIN
-    Enemigo goblin;
-    InicializarEnemigo(goblin, renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 300, jugadorPosicion.y);
 
 
-    //Enemigo enemigosGoblins[8];
 
-    InicializarEnemigo(enemigosGoblins[0], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 650, jugadorPosicion.y + 0);
-    InicializarEnemigo(enemigosGoblins[1], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 650, jugadorPosicion.y + 100);
-    InicializarEnemigo(enemigosGoblins[2], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 650, jugadorPosicion.y + 150);
-    InicializarEnemigo(enemigosGoblins[3], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 650, jugadorPosicion.y - 450);
-    InicializarEnemigo(enemigosGoblins[4], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y + 740);
-    InicializarEnemigo(enemigosGoblins[5], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 200, jugadorPosicion.y + -80);
-    InicializarEnemigo(enemigosGoblins[6], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y - 200);
-    InicializarEnemigo(enemigosGoblins[7], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 200, jugadorPosicion.y + -200);
-
-    // ENEMIGO DEMONS
-
-    int posicionesDemons[][2] = {
-        { jugadorPosicion.x + 850, jugadorPosicion.y + 0 },
-        { jugadorPosicion.x + 850, jugadorPosicion.y + 500 },
-        { jugadorPosicion.x - 850, jugadorPosicion.y + 620 },
-        { jugadorPosicion.x - 850, jugadorPosicion.y - 550 },
-        { jugadorPosicion.x + 0, jugadorPosicion.y + 840 },
-        { jugadorPosicion.x + 500, jugadorPosicion.y - 280 },
-        { jugadorPosicion.x + 0, jugadorPosicion.y - 210 },
-        { jugadorPosicion.x - 500, jugadorPosicion.y - 300 }
-    };
-    
-
-    // INICIALIZAR 8 DEMONS
-
-    for (int i = 0; i < 8; i++) {
-        InicializarEnemigo(enemigosBigDemon[i], renderer, "data/big_demon/big_demon_idle_anim_f3.png", posicionesDemons[i][0], posicionesDemons[i][1]);
-    }
-    
 
     // #######################################
     // PROYECTILES
     // #######################################
     
     // INICIALIZAR UN PROYECTIL DESDE EL JUGADOR
-
     Proyectil proyectilJugador;
     
     
@@ -558,10 +806,16 @@ int main(int argc, char** argv)
 
     while (!exit_requested && appletMainLoop()) 
     {
+
+        int current_minutes;
+        int current_seconds;
         
         // Dentro del bucle principal, calcular los minutos y segundos en función del número total de fotogramas
-        int current_minutes = total_frames / frames_per_minute;
-        int current_seconds = (total_frames % frames_per_minute) / frames_per_second;
+        if (!partidaAcabada) 
+        {
+            current_minutes = total_frames / frames_per_minute;
+            current_seconds = (total_frames % frames_per_minute) / frames_per_second;
+        }
 
        // Manejar la entrada del joystick
         SDL_JoystickUpdate();
@@ -569,15 +823,15 @@ int main(int argc, char** argv)
         int y = SDL_JoystickGetAxis(joystick, 1);
 
         // Determinar los movimientos en función de la entrada del joystick
-        if (x < -joystick_deadzone && jugadorPosicion.x >= 80) {
+        if (x < -joystick_deadzone && jugadorPosicion.x >= 80 && !partidaAcabada) {
             jugadorPosicion.x -= velocidadMovimiento;
-        } else if (x > joystick_deadzone && jugadorPosicion.x <= 1180) {
+        } else if (x > joystick_deadzone && jugadorPosicion.x <= 1180 && !partidaAcabada) {
             jugadorPosicion.x += velocidadMovimiento;
         }
 
-        if (y < -joystick_deadzone && jugadorPosicion.y >= 46) {
+        if (y < -joystick_deadzone && jugadorPosicion.y >= 46 && !partidaAcabada) {
             jugadorPosicion.y -= velocidadMovimiento;
-        } else if (y > joystick_deadzone && jugadorPosicion.y <= 650) {
+        } else if (y > joystick_deadzone && jugadorPosicion.y <= 650 && !partidaAcabada) {
             jugadorPosicion.y += velocidadMovimiento;
         }
 
@@ -600,65 +854,94 @@ int main(int argc, char** argv)
         //  MOVER ENEMIGOS          MOVER ENEMIGOS              MOVER ENEMIGOS      //
         //############################################################################
 
-        // Mover el enemigo hacia el jugador (pumpkin)
-        MoverEnemigoHaciaElJugador(goblin, &jugadorPosicion, 5.0f);
-
-        // Mover 8 goblins hacia el jugador
-        if(current_minutes <= 4 && current_seconds <= 55) {
-            for(int i = 0; i < 8; i++) {
-                MoverEnemigoHaciaElJugador(enemigosGoblins[i], &jugadorPosicion, 5.0f);
+        //generar oleadas
+        if (!partidaAcabada) 
+        {
+             if (current_minutes == 4 && current_seconds == 30) {
+                helloworld_tex = render_text(renderer, "Spawneando oleada 1", font, white, &helloworld_rect);
+                InicializarOleada(1);
+            } else if (current_minutes == 4 && current_seconds == 15) {
+                helloworld_tex = render_text(renderer, "Spawneando oleada 2", font, white, &helloworld_rect);
+                InicializarOleada(2);
+            } else if (current_minutes == 4 && current_seconds == 0) {
+                helloworld_tex = render_text(renderer, "Spawneando oleada 3", font, white, &helloworld_rect);
+                InicializarOleada(3);
+            } else if (current_minutes == 3 && current_seconds == 45) {
+                helloworld_tex = render_text(renderer, "Spawneando oleada 4", font, white, &helloworld_rect);
+                InicializarOleada(4);
+            } else if (current_minutes == 3 && current_seconds == 30) {
+                helloworld_tex = render_text(renderer, "Spawneando oleada 5", font, white, &helloworld_rect);
+                InicializarOleada(5);
+            } else if (current_minutes == 3 && current_seconds == 15) {
+                helloworld_tex = render_text(renderer, "Spawneando oleada 6", font, white, &helloworld_rect);
+                InicializarOleada(6);
+            } else if (current_minutes == 3 && current_seconds == 0) {
+                helloworld_tex = render_text(renderer, "Spawneando oleada 7", font, white, &helloworld_rect);
+                InicializarOleada(7);
+            } else if (current_minutes == 2 && current_seconds == 45) {
+                helloworld_tex = render_text(renderer, "Spawneando oleada 8", font, white, &helloworld_rect);
+                InicializarOleada(8);
+            } else if (current_minutes == 2 && current_seconds == 30) {
+                helloworld_tex = render_text(renderer, "Spawneando oleada 9", font, white, &helloworld_rect);
+                InicializarOleada(9);
+            } else if (current_minutes == 2 && current_seconds == 15) {
+                helloworld_tex = render_text(renderer, "Spawneando oleada 10", font, white, &helloworld_rect);
+                InicializarOleada(10);
+            } else if (current_minutes == 2 && current_seconds == 0) {
+                helloworld_tex = render_text(renderer, "Spawneando oleada 11", font, white, &helloworld_rect);
+                InicializarOleada(11);
+            } else if (current_minutes == 1 && current_seconds == 45) {
+                helloworld_tex = render_text(renderer, "Spawneando oleada 12", font, white, &helloworld_rect);
+                InicializarOleada(12);
+            } else if (current_minutes == 1 && current_seconds == 30) {
+                helloworld_tex = render_text(renderer, "Spawneando oleada 13", font, white, &helloworld_rect);
+                InicializarOleada(13);
+            } else if (current_minutes == 1 && current_seconds == 15) {
+                helloworld_tex = render_text(renderer, "Spawneando oleada 14", font, white, &helloworld_rect);
+                InicializarOleada(14);
+            } else if (current_minutes == 1 && current_seconds == 0) {
+                helloworld_tex = render_text(renderer, "Spawneando oleada 15", font, white, &helloworld_rect);
+                InicializarOleada(15);
+            } else if (current_minutes == 0 && current_seconds == 45) {
+                helloworld_tex = render_text(renderer, "Spawneando oleada 16", font, white, &helloworld_rect);
+                InicializarOleada(16);
+            } else if (current_minutes == 0 && current_seconds == 30) {
+                helloworld_tex = render_text(renderer, "Spawneando oleada 17", font, white, &helloworld_rect);
+                InicializarOleada(17);
+            } else if (current_minutes == 0 && current_seconds == 15) {
+                helloworld_tex = render_text(renderer, "Spawneando oleada 18", font, white, &helloworld_rect);
+                InicializarOleada(18);
             }
         }
-
         
-        
-        // Mover 8 demons hacia el jugador tras 30 segundos
-        if(current_minutes <= 4 && current_seconds <= 30) {
-            for(int i = 0; i < 8; i++) {
-                MoverEnemigoHaciaElJugador(enemigosBigDemon[i], &jugadorPosicion, 5.0f);
-            }
-        }
-        
-        // MOVIMIENTO DEL PROYECTIL
 
-
-        // DETECTAR COLISIONES CON EL JUGADOR
-
-        // goblin solito :(
-        if(detectarColisionJugadorEnemigo(&jugadorPosicion, goblin)) {
-            helloworld_tex = render_text(renderer, "COLISION GOBLIN", font, white, &helloworld_rect);
-            vidaJugador -= 0.5;
-        }
-
-        // demons colisiones
-        for (int i = 0; i < 8; i++) {
-            if(detectarColisionJugadorEnemigo(&jugadorPosicion, enemigosGoblins[i])) {
-                helloworld_tex = render_text(renderer, "COLISION GOBLIN", font, white, &helloworld_rect);
-                vidaJugador -= 0.5;
-            }
-        }
-
-        // demons colisiones
-        for (int i = 0; i < 8; i++) {
-            if(detectarColisionJugadorEnemigo(&jugadorPosicion, enemigosBigDemon[i])) {
-                helloworld_tex = render_text(renderer, "COLISION DEMON", font, white, &helloworld_rect);
-                vidaJugador -= 1;
-            }
-        }
 
         // ##################
         // COOLDOWN PROYECTIL
         // ##################
 
+        Enemigo enemigoADisparar;
+        bool enemigoEncontrado = false;
+
+        for(int i = 0; i < cantidadOleadasVivas && !enemigoEncontrado; i++) {
+            for (int j = 0; j < 8 && !enemigoEncontrado; j++) {
+                if (oleadas[oleadasVivas[i]][j].isAlive) {
+                    enemigoADisparar = oleadas[oleadasVivas[i]][j];
+                    enemigoEncontrado = true;
+                }
+            }
+        }
+
+
         if (cooldownProyectil > 0) {
             cooldownProyectil--;
             
 
-            MoverProyectilAlEnemigo(proyectilJugador, goblin, 8.0); // 5.0 es la velocidad del proyectil, ajusta según lo necesites
+            MoverProyectilAlEnemigo(proyectilJugador, enemigoADisparar, 8.0); // 5.0 es la velocidad del proyectil, ajusta según lo necesites
 
 
             // Detectar colisión del proyectil con el enemigo goblin
-            if (detectarColisionProyectilEnemigo(proyectilJugador, goblin)) {
+            if (detectarColisionProyectilEnemigo(proyectilJugador, enemigoADisparar)) {
                 // Aquí puedes realizar acciones como eliminar el proyectil y dañar al enemigo goblin
                 // Por ejemplo:
                 // proyectilJugador.activo = false;
@@ -685,10 +968,10 @@ int main(int argc, char** argv)
 
         if(vidaJugador <= 0) {
             gameOverTexture = render_text(renderer, "GAME OVER", font, red, &gameOverRect);
-            // LINEA ABAJO CIERRA EL JUEGO DIRECTAMENTE
-            //exit_requested = 1;
+            partidaAcabada = true;
         } else if(current_minutes <= 0 && current_seconds <= 0) {
             gameOverTexture = render_text(renderer, "YOU HAVE SURVIDED", font, red, &gameOverRect);
+            partidaAcabada = true;
         }
 
 
@@ -703,7 +986,7 @@ int main(int argc, char** argv)
         // ########################
 
         estadoJugador = RUN;
-        //renderizarAnimacionJugador();
+        // renderizarAnimacionJugador();
 
         // Renderizar imagen de fondo
         SDL_RenderCopy(renderer, backgroundTexture, NULL, NULL);
@@ -711,11 +994,23 @@ int main(int argc, char** argv)
 
         DibujarProyectil(renderer, proyectilJugador);
 
-        // Dibujar el enemigo (goblin)
-        DibujarEnemigo(renderer, goblin);
-        DibujarOleadasGoblins();
-        DibujarOleadasDemons();
-        //SDL_RenderCopy(renderer, proyectilJugador.texture, NULL, &proyectilJugador.pos);
+        // Movimiento, colisiones y render de los enemigos
+
+        if (!partidaAcabada) 
+        {
+            for(int i = 0; i < cantidadOleadasVivas; i++) {
+                for (int j = 0; j < 8; j++) {
+                    if (oleadas[oleadasVivas[i]][j].isAlive) {
+                        MoverEnemigoHaciaElJugador(oleadas[oleadasVivas[i]][j], &jugadorPosicion, 5.0f);
+                        if(detectarColisionJugadorEnemigo(&jugadorPosicion, oleadas[oleadasVivas[i]][j])) {
+                            helloworld_tex = render_text(renderer, "COLISION", font, red, &helloworld_rect);
+                            vidaJugador -= 0.5;
+                        }
+                        DibujarEnemigo(renderer,oleadas[oleadasVivas[i]][j]);
+                    }
+                }
+            }
+        }
 
         // Dibujar el personaje
         SDL_RenderCopy(renderer, jugadorTextura, NULL, &jugadorPosicion);
@@ -733,18 +1028,21 @@ int main(int argc, char** argv)
         total_frames--; // Incrementar el número total de fotogramas
 
         // Calcular los minutos y segundos actuales en función del número total de fotogramas
-        current_minutes = total_frames / frames_per_minute;
-        current_seconds = (total_frames % frames_per_minute) / frames_per_second;
+        if (!partidaAcabada) 
+        {
+            current_minutes = total_frames / frames_per_minute;
+            current_seconds = (total_frames % frames_per_minute) / frames_per_second;
+        }
 
 
-            // Si los segundos llegan a cero, decrementar los minutos y resetear los segundos a 59
+        // Si los segundos llegan a cero, decrementar los minutos y resetear los segundos a 59
         if (current_seconds < 0) 
         {
             current_seconds = 59;
             current_minutes--;
         }
 
-         // Si los minutos llegan a cero y los segundos llegan a cero, detener el juego
+        // Si los minutos llegan a cero y los segundos llegan a cero, detener el juego
         if (current_minutes <= 0 && current_seconds <= 0) 
         {
             exit_requested = 1; // Salir del bucle
@@ -775,7 +1073,6 @@ int main(int argc, char** argv)
     SDL_DestroyTexture(jugadorTextura);
     SDL_DestroyTexture(helloworld_tex);
     SDL_DestroyTexture(tiempo_tex);
-    SDL_DestroyTexture(goblin.texture); // Destruir la textura del goblin para liberar la memoria
     LiberarMemoriaGoblins();
     LiberarMemoriaDemons();
 
