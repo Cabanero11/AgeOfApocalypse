@@ -1,3 +1,7 @@
 .vscode/settings.json
 AgeOfApocalypse.nro
 AgeOfApocalypse.nro
+AgeOfApocalypse.elf
+AgeOfApocalypse.nro
+build/AgeOfApocalypse.lst
+build/AgeOfApocalypse.map

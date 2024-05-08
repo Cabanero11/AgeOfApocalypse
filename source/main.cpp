@@ -19,6 +19,8 @@
 
 bool partidaAcabada = false;
 
+double dañoProyecyil = 10;
+
 // Variables de movimiento
 bool move_up = false;
 bool move_down = false;
@@ -67,6 +69,7 @@ struct Enemigo {
     Coordenada coord;       // Coordenadas del enemigo
     double life;            // Puntos de vida del enemigo
     bool isAlive;           // Indica si el enemigo está con vida
+    int tiempoUltimoImpacto;
 };
 
 // VIDA ENEMIGOS
@@ -91,6 +94,8 @@ void InicializarEnemigo(Enemigo& enemigo, SDL_Renderer* renderer, const char* fi
     enemigo.life = vida;
 
     enemigo.isAlive = true;
+
+    enemigo.tiempoUltimoImpacto = 302;
 }
 
 //#####################################################################################################
@@ -590,6 +595,8 @@ void InicializarProyectil2(Proyectil& proyectil, SDL_Renderer* renderer, const c
     proyectil.velocidad = 8.0; // Puedes ajustar la velocidad según lo necesites
 
     proyectil.activo = true;
+
+    proyectil.haImpactado = false;
 }
 
 // Función para dibujar un proyectil en el renderer
@@ -1012,8 +1019,6 @@ int main(int argc, char** argv)
                 helloworld_tex = render_text(renderer, "MISIL IMPACTO YIPIII", font, green, &helloworld_rect);
             }
             */
-
-            proyectilJugador.haImpactado = false;
         }
 
        
@@ -1063,6 +1068,8 @@ int main(int argc, char** argv)
 
         // Movimiento, colisiones y render de los enemigos
 
+        int contadorEnemigosMuertos = 0;
+
         if (!partidaAcabada) 
         {
             for(int i = 0; i < cantidadOleadasVivas; i++) {
@@ -1073,13 +1080,30 @@ int main(int argc, char** argv)
                             helloworld_tex = render_text(renderer, "COLISION", font, red, &helloworld_rect);
                             vidaJugador -= 0.5;
                         }
-                        if(detectarColisionProyectilEnemigo(proyectilJugador, oleadas[oleadasVivas[i]][j])) {
-                            oleadas[oleadasVivas[i]][j].isAlive = false;
+                        if(detectarColisionProyectilEnemigo(proyectilJugador, oleadas[oleadasVivas[i]][j]) 
+                        && oleadas[oleadasVivas[i]][j].tiempoUltimoImpacto >= (current_minutes * 60 + current_seconds + 1)) 
+                        {
                             proyectilJugador.haImpactado = true;
+                            oleadas[oleadasVivas[i]][j].tiempoUltimoImpacto = (current_minutes * 60 + current_seconds);
+                            oleadas[oleadasVivas[i]][j].life -= dañoProyecyil;
+                            if (oleadas[oleadasVivas[i]][j].life <= 0) {
+                                oleadas[oleadasVivas[i]][j].isAlive = false;
+                            }
                         }
                         DibujarEnemigo(renderer,oleadas[oleadasVivas[i]][j]);
+                    } else {
+                        contadorEnemigosMuertos++;
+                        if (contadorEnemigosMuertos == 8) {
+                            for(int k = i; k < cantidadOleadasVivas -1; k++) {
+                                oleadasVivas[k] = oleadasVivas[k + 1];
+                            }
+                            oleadasVivas[cantidadOleadasVivas] = 0;
+                            cantidadOleadasVivas--;
+                            LiberarMemoriaOleada(i);
+                        }
                     }
                 }
+                contadorEnemigosMuertos = 0;
             }
         }
 
@@ -1147,7 +1171,7 @@ int main(int argc, char** argv)
     LiberarMemoriaGoblins();
     LiberarMemoriaDemons();
 
-    //animacionJugador.Destruir();
+    // animacionJugador.Destruir();
 
 
 
