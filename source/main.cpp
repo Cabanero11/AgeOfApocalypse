@@ -544,6 +544,7 @@ struct Proyectil {
     double velocidad;       // Velocidad del proyectil
     bool activo;            // Indica si el proyectil está activo o no
     double dañoProyectil;
+    bool haImpactado;
 };
 
 // Función para inicializar un proyectil desde el jugador hacia un enemigo
@@ -569,6 +570,8 @@ void InicializarProyectil(Proyectil& proyectil,const SDL_Rect* jugadorPosicion, 
 
     // Activa el proyectil
     proyectil.activo = true;
+
+    proyectil.haImpactado = false;
 }
 
 
@@ -999,7 +1002,7 @@ int main(int argc, char** argv)
 
             MoverProyectilAlEnemigo(proyectilJugador, enemigoADisparar, 8.0); // 5.0 es la velocidad del proyectil, ajusta según lo necesites
 
-
+            /*
             // Detectar colisión del proyectil con el enemigo goblin
             if (detectarColisionProyectilEnemigo(proyectilJugador, enemigoADisparar)) {
                 // Aquí puedes realizar acciones como eliminar el proyectil y dañar al enemigo goblin
@@ -1008,6 +1011,9 @@ int main(int argc, char** argv)
                 enemigoADisparar.life -= dañoProyectil;
                 helloworld_tex = render_text(renderer, "MISIL IMPACTO YIPIII", font, green, &helloworld_rect);
             }
+            */
+
+            proyectilJugador.haImpactado = false;
         }
 
        
@@ -1051,8 +1057,9 @@ int main(int argc, char** argv)
         // Renderizar imagen de fondo
         SDL_RenderCopy(renderer, backgroundTexture, NULL, NULL);
 
-
-        DibujarProyectil(renderer, proyectilJugador);
+        if (!proyectilJugador.haImpactado) {
+            DibujarProyectil(renderer, proyectilJugador);
+        }
 
         // Movimiento, colisiones y render de los enemigos
 
@@ -1065,6 +1072,10 @@ int main(int argc, char** argv)
                         if(detectarColisionJugadorEnemigo(&jugadorPosicion, oleadas[oleadasVivas[i]][j])) {
                             helloworld_tex = render_text(renderer, "COLISION", font, red, &helloworld_rect);
                             vidaJugador -= 0.5;
+                        }
+                        if(detectarColisionProyectilEnemigo(proyectilJugador, oleadas[oleadasVivas[i]][j])) {
+                            oleadas[oleadasVivas[i]][j].isAlive = false;
+                            proyectilJugador.haImpactado = true;
                         }
                         DibujarEnemigo(renderer,oleadas[oleadasVivas[i]][j]);
                     }
