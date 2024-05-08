@@ -120,6 +120,8 @@ bool oleada15generada = false;
 bool oleada16generada = false;
 bool oleada17generada = false;
 bool oleada18generada = false;
+bool oleada19generada = false;
+bool oleada20generada = false;
 
 Enemigo enemigosGoblins[8];
 Enemigo enemigosBigDemon[16];
@@ -366,6 +368,32 @@ void InicializarOleada(int numeroOleada){
             contadorOleada++;
             oleadasVivas[cantidadOleadasVivas] = 18;
             cantidadOleadasVivas++;
+        } else if (numeroOleada == 19 && !oleada19generada) {
+            oleada19generada = true;
+            InicializarEnemigo(oleadas[19][0], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 0 , vidaGoblin);
+            InicializarEnemigo(oleadas[19][1], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 500, vidaGoblin);
+            InicializarEnemigo(oleadas[19][2], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y + 620, vidaGoblin);
+            InicializarEnemigo(oleadas[19][3], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y - 550, vidaGoblin);
+            InicializarEnemigo(oleadas[19][4], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y + 840, vidaGoblin);
+            InicializarEnemigo(oleadas[19][5], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 500, jugadorPosicion.y - 280, vidaGoblin);
+            InicializarEnemigo(oleadas[19][6], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y - 210, vidaGoblin);
+            InicializarEnemigo(oleadas[19][7], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 500, jugadorPosicion.y - 300, vidaGoblin);
+            contadorOleada++;
+            oleadasVivas[cantidadOleadasVivas] = 19;
+            cantidadOleadasVivas++;
+        } else if (numeroOleada == 20 && !oleada18generada) {
+            oleada20generada = true;
+            InicializarEnemigo(oleadas[20][0], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 0 , vidaGoblin);
+            InicializarEnemigo(oleadas[20][1], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 850, jugadorPosicion.y + 500, vidaGoblin);
+            InicializarEnemigo(oleadas[20][2], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y + 620, vidaGoblin);
+            InicializarEnemigo(oleadas[20][3], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 850, jugadorPosicion.y - 550, vidaGoblin);
+            InicializarEnemigo(oleadas[20][4], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y + 840, vidaGoblin);
+            InicializarEnemigo(oleadas[20][5], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 500, jugadorPosicion.y - 280, vidaGoblin);
+            InicializarEnemigo(oleadas[20][6], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x + 0, jugadorPosicion.y - 210, vidaGoblin);
+            InicializarEnemigo(oleadas[20][7], renderer, "data/goblin/goblin_idle_anim_f0.png", jugadorPosicion.x - 500, jugadorPosicion.y - 300, vidaGoblin);
+            contadorOleada++;
+            oleadasVivas[cantidadOleadasVivas] = 20;
+            cantidadOleadasVivas++;
         }
 
         generandoOleada = false;
@@ -515,6 +543,7 @@ struct Proyectil {
     Coordenada direccion;   // Dirección del proyectil
     double velocidad;       // Velocidad del proyectil
     bool activo;            // Indica si el proyectil está activo o no
+    double dañoProyectil;
 };
 
 // Función para inicializar un proyectil desde el jugador hacia un enemigo
@@ -857,60 +886,66 @@ int main(int argc, char** argv)
         //generar oleadas
         if (!partidaAcabada) 
         {
-             if (current_minutes == 4 && current_seconds == 30) {
+            if (current_minutes == 5 && current_seconds == 0) {
                 helloworld_tex = render_text(renderer, "Spawneando oleada 1", font, white, &helloworld_rect);
                 InicializarOleada(1);
-            } else if (current_minutes == 4 && current_seconds == 15) {
+            } else if (current_minutes == 4 && current_seconds == 45) {
                 helloworld_tex = render_text(renderer, "Spawneando oleada 2", font, white, &helloworld_rect);
                 InicializarOleada(2);
-            } else if (current_minutes == 4 && current_seconds == 0) {
+            } else if (current_minutes == 4 && current_seconds == 30) {
                 helloworld_tex = render_text(renderer, "Spawneando oleada 3", font, white, &helloworld_rect);
                 InicializarOleada(3);
-            } else if (current_minutes == 3 && current_seconds == 45) {
+            } else if (current_minutes == 4 && current_seconds == 15) {
                 helloworld_tex = render_text(renderer, "Spawneando oleada 4", font, white, &helloworld_rect);
                 InicializarOleada(4);
-            } else if (current_minutes == 3 && current_seconds == 30) {
+            } else if (current_minutes == 4 && current_seconds == 0) {
                 helloworld_tex = render_text(renderer, "Spawneando oleada 5", font, white, &helloworld_rect);
                 InicializarOleada(5);
-            } else if (current_minutes == 3 && current_seconds == 15) {
+            } else if (current_minutes == 3 && current_seconds == 45) {
                 helloworld_tex = render_text(renderer, "Spawneando oleada 6", font, white, &helloworld_rect);
                 InicializarOleada(6);
-            } else if (current_minutes == 3 && current_seconds == 0) {
+            } else if (current_minutes == 3 && current_seconds == 30) {
                 helloworld_tex = render_text(renderer, "Spawneando oleada 7", font, white, &helloworld_rect);
                 InicializarOleada(7);
-            } else if (current_minutes == 2 && current_seconds == 45) {
+            } else if (current_minutes == 3 && current_seconds == 15) {
                 helloworld_tex = render_text(renderer, "Spawneando oleada 8", font, white, &helloworld_rect);
                 InicializarOleada(8);
-            } else if (current_minutes == 2 && current_seconds == 30) {
+            } else if (current_minutes == 3 && current_seconds == 0) {
                 helloworld_tex = render_text(renderer, "Spawneando oleada 9", font, white, &helloworld_rect);
                 InicializarOleada(9);
-            } else if (current_minutes == 2 && current_seconds == 15) {
+            } else if (current_minutes == 2 && current_seconds == 45) {
                 helloworld_tex = render_text(renderer, "Spawneando oleada 10", font, white, &helloworld_rect);
                 InicializarOleada(10);
-            } else if (current_minutes == 2 && current_seconds == 0) {
+            } else if (current_minutes == 2 && current_seconds == 30) {
                 helloworld_tex = render_text(renderer, "Spawneando oleada 11", font, white, &helloworld_rect);
                 InicializarOleada(11);
-            } else if (current_minutes == 1 && current_seconds == 45) {
+            } else if (current_minutes == 2 && current_seconds == 15) {
                 helloworld_tex = render_text(renderer, "Spawneando oleada 12", font, white, &helloworld_rect);
                 InicializarOleada(12);
-            } else if (current_minutes == 1 && current_seconds == 30) {
+            } else if (current_minutes == 2 && current_seconds == 0) {
                 helloworld_tex = render_text(renderer, "Spawneando oleada 13", font, white, &helloworld_rect);
                 InicializarOleada(13);
-            } else if (current_minutes == 1 && current_seconds == 15) {
+            } else if (current_minutes == 1 && current_seconds == 45) {
                 helloworld_tex = render_text(renderer, "Spawneando oleada 14", font, white, &helloworld_rect);
                 InicializarOleada(14);
-            } else if (current_minutes == 1 && current_seconds == 0) {
+            } else if (current_minutes == 1 && current_seconds == 30) {
                 helloworld_tex = render_text(renderer, "Spawneando oleada 15", font, white, &helloworld_rect);
                 InicializarOleada(15);
-            } else if (current_minutes == 0 && current_seconds == 45) {
+            } else if (current_minutes == 1 && current_seconds == 15) {
                 helloworld_tex = render_text(renderer, "Spawneando oleada 16", font, white, &helloworld_rect);
                 InicializarOleada(16);
-            } else if (current_minutes == 0 && current_seconds == 30) {
+            } else if (current_minutes == 1 && current_seconds == 0) {
                 helloworld_tex = render_text(renderer, "Spawneando oleada 17", font, white, &helloworld_rect);
                 InicializarOleada(17);
-            } else if (current_minutes == 0 && current_seconds == 15) {
+            } else if (current_minutes == 0 && current_seconds == 45) {
                 helloworld_tex = render_text(renderer, "Spawneando oleada 18", font, white, &helloworld_rect);
                 InicializarOleada(18);
+            } else if (current_minutes == 0 && current_seconds == 30) {
+                helloworld_tex = render_text(renderer, "Spawneando oleada 19", font, white, &helloworld_rect);
+                InicializarOleada(19);
+            } else if (current_minutes == 0 && current_seconds == 15) {
+                helloworld_tex = render_text(renderer, "Spawneando oleada 20", font, white, &helloworld_rect);
+                InicializarOleada(20);
             }
         }
         
@@ -945,7 +980,7 @@ int main(int argc, char** argv)
                 // Aquí puedes realizar acciones como eliminar el proyectil y dañar al enemigo goblin
                 // Por ejemplo:
                 // proyectilJugador.activo = false;
-                // enemigoMasCercano->vida -= dañoProyectil;
+                enemigoADisparar.life -= dañoProyectil;
                 helloworld_tex = render_text(renderer, "MISIL IMPACTO YIPIII", font, green, &helloworld_rect);
             }
         }
