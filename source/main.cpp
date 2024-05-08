@@ -97,9 +97,9 @@ void InicializarEnemigo(Enemigo& enemigo, SDL_Renderer* renderer, const char* fi
 // DEFINIR OLEADAS OLEADAS OLEADAS OLEADAS
 //#####################################################################################################
 
-Enemigo oleadas[17][8]; // 18 oleadas, una cada 15 segundos a partir del 4:30. Cada oleada tendrá 8 enemigos
+Enemigo oleadas[20][8]; // 18 oleadas, una cada 15 segundos a partir del 4:30. Cada oleada tendrá 8 enemigos
 int contadorOleada = 0;
-int oleadasVivas[17];
+int oleadasVivas[20];
 int cantidadOleadasVivas = 0;
 bool generandoOleada = false;
 bool oleada1generada = false;
