@@ -215,64 +215,45 @@ SDL_Texture* render_time(SDL_Renderer* renderer, TTF_Font* font, const char* tim
 /// PROYECTILES
 
 
-
-// Estructura para representar un proyectil
-struct Proyectil {
-    SDL_Texture* texture;   // Textura del proyectil
-    SDL_Rect pos;           // Posición del proyectil
-    Coordenada coord;       // Coordenadas del proyectil
-    double velocidad;       // Velocidad del proyectil
-    double direccion_x;     // Componente x de la dirección del proyectil
-    double direccion_y;     // Componente y de la dirección del proyectil
+struct ProyectilMagico {
+    SDL_Texture* texture;   // Textura del proyectil mágico
+    SDL_Rect pos;           // Posición del proyectil mágico
+    Coordenada direccion;   // Dirección del proyectil mágico
+    double velocidad;       // Velocidad del proyectil mágico
 };
 
+ProyectilMagico crearProyectilMagico(SDL_Renderer* renderer, const SDL_Rect* jugadorPosicion, Enemigo* enemigos) {
+    ProyectilMagico proyectil;
 
-Proyectil crearProyectilDesdeJugador(SDL_Renderer* renderer, const char* filename, const SDL_Rect* jugadorPosicion, double velocidad, double direccion_x, double direccion_y) {
-    Proyectil proyectil;
-    proyectil.texture = IMG_LoadTexture(renderer, filename);
-    if (!proyectil.texture) {
-        printf("Error cargando la textura del proyectil: %s\n", IMG_GetError());
-        exit(EXIT_FAILURE);
-    }
-    proyectil.pos = { jugadorPosicion->x + jugadorPosicion->w / 2, jugadorPosicion->y + jugadorPosicion->h / 2, 16, 16 }; // Posición inicial del proyectil en el centro del jugador
-    proyectil.coord = { (double)proyectil.pos.x, (double)proyectil.pos.y };
-    proyectil.velocidad = velocidad;
-    proyectil.direccion_x = direccion_x;
-    proyectil.direccion_y = direccion_y;
+    // Inicializa la posición del proyectil en la posición actual del jugador
+    proyectil.pos.x = jugadorPosicion->x;
+    proyectil.pos.y = jugadorPosicion->y;
+
+    // Establece la velocidad del proyectil
+    proyectil.velocidad = 4.0; // Puedes ajustar la velocidad según lo necesites
+
+    // Carga la textura del proyectil mágico (asegúrate de tener la textura adecuada)
+    proyectil.texture = IMG_LoadTexture(renderer, "data/bomb_f0.png");
+
     return proyectil;
 }
 
-// Función para inicializar un proyectil
-void InicializarProyectil(Proyectil& proyectil, SDL_Renderer* renderer, const char* filename, int x, int y, double velocidad, double direccion_x, double direccion_y) {
-    proyectil.texture = IMG_LoadTexture(renderer, filename);
-    if (!proyectil.texture) {
-        printf("Error cargando la textura del proyectil: %s\n", IMG_GetError());
-        exit(EXIT_FAILURE);
-    }
+void dispararProyectilMagico(SDL_Renderer* renderer, const SDL_Rect* jugadorPosicion, Enemigo* enemigoMasCercano) {
+    ProyectilMagico proyectil = crearProyectilMagico(renderer, jugadorPosicion, enemigoMasCercano);
 
-    proyectil.pos = { x, y, 16, 16 }; // Aquí puedes ajustar el tamaño del proyectil según tus necesidades
+    // Calcula la dirección del proyectil basándose en el enemigo más cercano
+    double direccionX = enemigoMasCercano->pos.x - proyectil.pos.x;
+    double direccionY = enemigoMasCercano->pos.y - proyectil.pos.y;
 
-    proyectil.coord = { (double)x, (double)y };
-    proyectil.velocidad = velocidad;
-    proyectil.direccion_x = direccion_x;
-    proyectil.direccion_y = direccion_y;
-}
+    // Normaliza la dirección del proyectil
+    double magnitud = sqrt(direccionX * direccionX + direccionY * direccionY);
+    proyectil.direccion.x = direccionX / magnitud;
+    proyectil.direccion.y = direccionY / magnitud;
 
-// Función para mover un proyectil
-void MoverProyectil(Proyectil& proyectil) {
-    // Mover el proyectil en la dirección dada por su velocidad y dirección
-    proyectil.coord.x += proyectil.velocidad * proyectil.direccion_x;
-    proyectil.coord.y += proyectil.velocidad * proyectil.direccion_y;
-
-    // Actualizar la posición del proyectil
-    proyectil.pos.x = (int)proyectil.coord.x;
-    proyectil.pos.y = (int)proyectil.coord.y;
-}
-
-// Función para dibujar un proyectil en el renderer
-void DibujarProyectil(SDL_Renderer* renderer, const Proyectil& proyectil) {
+    // Por ahora, simplemente dibujaremos el proyectil en la pantalla
     SDL_RenderCopy(renderer, proyectil.texture, NULL, &proyectil.pos);
 }
+
 
 
 
@@ -359,6 +340,10 @@ int main(int argc, char** argv)
     int frames_per_second = 60; // Asumiendo que el juego se ejecuta a 60 fotogramas por segundo
     int frames_per_minute = frames_per_second * 60; // Fotogramas por minuto
     int total_frames = minutes * frames_per_minute + seconds * frames_per_second;
+    
+    int cooldownProyectil = 0;
+    const int COOLDOWNProyectil_MAX = 60; // Tiempo de cooldownProyectil en frames (ajusta según necesites)
+
 
 
     // JUGADOR BARRA DE VIDA
@@ -427,6 +412,8 @@ int main(int argc, char** argv)
     int minutes = 0; // Variable para los minutos
     int seconds = 59;  // Variable para los segundos
     SDL_Rect tiempo_rect = { SCREEN_W / 2, 36, 0, 0 }; // Posición del texto del tiempo
+    
+
 
     // Inicializar las variables relacionadas con el tiempo
     SDL_Color red = { 255, 0, 0, 0 }; // Color del texto del tiempo
@@ -514,7 +501,6 @@ int main(int argc, char** argv)
     // #######################################
     
     // INICIALIZAR UN PROYECTIL DESDE EL JUGADOR
-    Proyectil proyectilJugador = crearProyectilDesdeJugador(renderer, "data/switch.png", &jugadorPosicion, 10.0, 10.0, 20.0);
 
     
     
@@ -576,26 +562,32 @@ int main(int argc, char** argv)
         int x = SDL_JoystickGetAxis(joystick, 0);
         int y = SDL_JoystickGetAxis(joystick, 1);
 
-        // Actualizar la posición del jugador en función de la entrada del joystick
-        if (x < -joystick_deadzone)
-            jugadorPosicion.x -= velocidadMovimiento;
-        else if (x > joystick_deadzone)
-            jugadorPosicion.x += velocidadMovimiento;
+        // Determinar los movimientos en función de la entrada del joystick
+        if (x < -joystick_deadzone) {
+            move_left = true;
+        } else if (x > joystick_deadzone) {
+            move_right = true;
+        }
 
-
-        if (y < -joystick_deadzone)
-            jugadorPosicion.y -= velocidadMovimiento;
-        else if (y > joystick_deadzone)
-            jugadorPosicion.y += velocidadMovimiento;
+        if (y < -joystick_deadzone) {
+            move_up = true;
+        } else if (y > joystick_deadzone) {
+            move_down = true;
+        }
 
 
         // Actualizar la posición del personaje en función del estado de los botones
         switch (estadoJugador) {
             case IDLE:
                 // Lógica para el estado idle
+                // Detener el movimiento si no hay entrada del joystick
+                move_left = false;
+                move_right = false;
+                move_up = false;
+                move_down = false;
                 break;
             case RUN:
-                if (move_up && jugadorPosicion.y >= 52)
+                if (move_up && jugadorPosicion.y >= 46)
                     jugadorPosicion.y -= velocidadMovimiento;
                 if (move_down && jugadorPosicion.y <= 650)
                     jugadorPosicion.y += velocidadMovimiento;
@@ -634,12 +626,16 @@ int main(int argc, char** argv)
         }
         
         // MOVIMIENTO DEL PROYECTIL
-        // Aquí puedes agregar lógica para mover el proyectil, por ejemplo:
-        proyectilJugador.pos.x += proyectilJugador.direccion_x * proyectilJugador.velocidad;
-        proyectilJugador.pos.y += proyectilJugador.direccion_y * proyectilJugador.velocidad;
 
         // DETECTAR COLISIONES CON EL JUGADOR
 
+        // goblin solito :(
+        if(detectarColisionJugadorEnemigo(&jugadorPosicion, goblin)) {
+            helloworld_tex = render_text(renderer, "COLISION GOBLIN", font, white, &helloworld_rect);
+            vidaJugador -= 0.5;
+        }
+
+        // demons colisiones
         for (int i = 0; i < 8; i++) {
             if(detectarColisionJugadorEnemigo(&jugadorPosicion, enemigosGoblins[i])) {
                 helloworld_tex = render_text(renderer, "COLISION GOBLIN", font, white, &helloworld_rect);
@@ -647,12 +643,44 @@ int main(int argc, char** argv)
             }
         }
 
+        // demons colisiones
         for (int i = 0; i < 8; i++) {
             if(detectarColisionJugadorEnemigo(&jugadorPosicion, enemigosBigDemon[i])) {
                 helloworld_tex = render_text(renderer, "COLISION DEMON", font, white, &helloworld_rect);
                 vidaJugador -= 1;
             }
         }
+
+
+
+        if (cooldownProyectil > 0) {
+            cooldownProyectil--;
+            //helloworld_tex = render_text(renderer, "MISIL COOLDOWN JOO", font, white, &helloworld_rect);
+        }
+
+        double distanciaMinima = 1.0f;
+        Enemigo* enemigoMasCercano;
+        // Itera sobre todos los enemigos
+        for (int i = 0; i < 8; ++i) {
+            // Calcula la distancia entre el jugador y el enemigo actual
+            double distanciaActual = distancia(Coordenada{jugadorPosicion.x, jugadorPosicion.y}, {enemigosGoblins[i].pos.x, enemigosGoblins[i].pos.y});
+
+            // Si la distancia actual es menor que la distancia mínima encontrada hasta ahora
+            if (distanciaActual < distanciaMinima) {
+                // Actualiza la distancia mínima
+                distanciaMinima = distanciaActual;
+                // Actualiza el puntero al enemigo más cercano
+                enemigoMasCercano = &enemigosGoblins[i];
+            }
+        }
+
+        if (cooldownProyectil == 0) {
+            dispararProyectilMagico(renderer, &jugadorPosicion, enemigoMasCercano);
+            Mix_PlayChannel(-1, sound[0], 0); // SONIDITO DE DISPARO OH
+            helloworld_tex = render_text(renderer, "MISIL DISPARADO RAHHH", font, white, &helloworld_rect);
+            cooldownProyectil = COOLDOWNProyectil_MAX; // Establece el cooldownProyectil original
+        }
+
 
         // ########################
         // GAME OVER / FIN PARTIDA
@@ -687,7 +715,7 @@ int main(int argc, char** argv)
         DibujarEnemigo(renderer, goblin);
         DibujarOleadasGoblins();
         DibujarOleadasDemons();
-        SDL_RenderCopy(renderer, proyectilJugador.texture, NULL, &proyectilJugador.pos);
+        //SDL_RenderCopy(renderer, proyectilJugador.texture, NULL, &proyectilJugador.pos);
 
         // Dibujar el personaje
         SDL_RenderCopy(renderer, jugadorTextura, NULL, &jugadorPosicion);
