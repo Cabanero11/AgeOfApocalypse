@@ -874,6 +874,7 @@ int main(int argc, char** argv)
     //SDL_Rect helloworld_rect = { SCREEN_W / 2, 36, 0, 0 };
     SDL_Color white = { 255, 255, 255, 0 };
     SDL_Color green = { 0, 255, 0, 0 };
+    SDL_Color black = { 0, 0, 0, 0 };
     SDL_Texture* helloworld_tex = render_text(renderer, ":(", font, white, &helloworld_rect);
 
 
@@ -891,9 +892,9 @@ int main(int argc, char** argv)
 
     // Experiencia por pantalla
 
-    SDL_Rect nivelExpRect = { 20, 700, 0, 0 };
+    SDL_Rect nivelExpRect = { 0, 0, 0, 0 };
     SDL_Texture* nivelExpTexture;
-    SDL_Rect expRect = { 20, 650, 0, 0 };
+    SDL_Rect expRect = { 0, 30, 0, 0 };
     SDL_Texture* expTexture;
 
     // EL PEPE
@@ -1111,7 +1112,7 @@ int main(int argc, char** argv)
         // Sistema de experiencia
 
         nivelExperiencia = contadorDeExperiencia / 16;
-        porcentajeDeNivel = (contadorDeExperiencia % 16) / 16;
+        porcentajeDeNivel = (static_cast<double>(contadorDeExperiencia % 16) / 16) * 100;
 
         switch (nivelExperiencia)
         {
@@ -1169,8 +1170,8 @@ int main(int argc, char** argv)
             break;
         }
 
-        nivelExpTexture = render_text(renderer, ("Nivel: " + std::to_string(nivelExperiencia)).c_str(), font, red, &gameOverRect);
-        expTexture = render_text(renderer, ("Porcentaje de nivel: " + std::to_string(porcentajeDeNivel)).c_str(), font, red, &gameOverRect);
+        nivelExpTexture = render_text(renderer, ("Nivel: " + std::to_string(nivelExperiencia)).c_str(), font, black, &nivelExpRect);
+        expTexture = render_text(renderer, ("Porcentaje de nivel: " + std::to_string(porcentajeDeNivel)).c_str(), font, black, &expRect);
 
         // ##################
         // COOLDOWN PROYECTIL
@@ -1189,7 +1190,7 @@ int main(int argc, char** argv)
         }
 
 
-        if (cooldownProyectil > 0) {
+        if (cooldownProyectil > 0 && !partidaAcabada) {
             cooldownProyectil--;      
 
             MoverProyectilAlEnemigo(proyectilJugador, enemigoADisparar, 8.0); // 5.0 es la velocidad del proyectil, ajusta según lo necesites
