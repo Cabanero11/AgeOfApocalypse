@@ -493,7 +493,7 @@ void MoverEnemigoHaciaElJugador(Enemigo& enemigo, const SDL_Rect* jugador, doubl
     }
 
     // Escalamos el vector dirección por la cantidad de unidades
-    double cantidad_unidades = 1.0;
+    double cantidad_unidades = 2;
     enemigo.coord.x += direccion_x * cantidad_unidades;
     enemigo.coord.y += direccion_y * cantidad_unidades;
 
@@ -1205,7 +1205,7 @@ int main(int argc, char** argv)
         }
 
 
-        if (cooldownProyectil > 0 && !partidaAcabada) {
+        if (cooldownProyectil > 0 && !partidaAcabada && cantidadOleadasVivas > 0) {
             cooldownProyectil--;      
 
             MoverProyectilAlEnemigo(proyectilJugador, enemigoADisparar, 8.0); // 5.0 es la velocidad del proyectil, ajusta según lo necesites
@@ -1214,7 +1214,7 @@ int main(int argc, char** argv)
        
 
         if (cooldownProyectil == 0) {
-            InicializarProyectil2(proyectilJugador, renderer, "data/bomb_f0.png", jugadorPosicion.x , jugadorPosicion.y, &jugadorPosicion);
+            InicializarProyectil2(proyectilJugador, renderer, "data/bomb_f2.png", jugadorPosicion.x , jugadorPosicion.y, &jugadorPosicion);
             //MoverProyectilAlEnemigo(proyectilJugador, goblin, 8.0); // 5.0 es la velocidad del proyectil, ajusta según lo necesites
             
            
